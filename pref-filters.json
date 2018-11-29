@@ -1,0 +1,75 @@
+[
+	{
+		"name" : "Hulu",
+		"type": "viewing-service",
+		"question" : "Do you use Hulu to watch movies?"
+	},
+	{"name" : "Netflix",
+	 "type": "viewing-service",
+	 "question" : "Do you use Netflix to watch movies?"},
+	{
+		"name" : "Redbox",
+		"type": "viewing-service",
+		"question" : "Do you use Redbox to watch movies?"
+	},
+	{
+		"name" : "Amazon Prime",
+		"type": "viewing-service",
+		"question" : "Do you use Amazon Prime to watch movies?"
+	},
+	{
+		"name" : "strong violence",
+		"type" : "content",
+		"question" : "Will you watch movies with strong violence?"
+	},
+	{
+		"name" : "female nudity",
+		"type" : "content",
+		"question" : "Will you watch movies with female nudity?"
+	},
+	{
+		"name" : "animal abuse",
+		"type" : "content",
+		"question" : "Will you watch movies with animal abuse?"
+	},
+	{
+		"name" : "male nudity",
+		"type" : "content",
+		"question" : "Will you watch movies with male nudity?"
+	},
+	{
+		"name" : "drug abuse",
+		"type" : "content",
+		"question" : "Will you watch movies with drug abuse?"
+	},
+	{
+		"name" : "Action",
+		"type" : "genre",
+		"question" : "Do you watch Action movies?"
+	},
+	{
+		"name" : "Drama",
+		"type" : "genre",
+		"question" : "Do you watch Drama movies?"
+	},
+	{
+		"name" : "Comedy",
+		"type" : "genre",
+		"question" : "Do you watch Comedy movies?"
+	},
+	{
+		"name" : "Thriller",
+		"type" : "genre",
+		"question" : "Do you watch Thriller movies?"
+	},
+	{
+		"name" : "Horror",
+		"type" : "genre",
+		"question" : "Do you watch Horror movies?"
+	},
+	{
+		"name" : "Romance",
+		"type" : "genre",
+		"question" : "Do you watch Romance movies?"
+	}
+]

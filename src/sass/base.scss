@@ -1,0 +1,278 @@
+//The lower the number the darker
+$red1 : #fcf0f0;
+$grey1: #2b2b2b;
+$white1: #f7f6ff;
+$backgroundCol1 : #443c4c;
+$backgroundCol2 : #675b72;
+
+$headerFont : -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+
+$moviesPerRow: 5;
+
+$green1 : rgb(2, 201, 92);
+
+@mixin glowText() {
+    -webkit-stroke-width: 5.3px;
+    -webkit-stroke-color: #FFFFFF;
+    -webkit-fill-color: #FFFFFF;
+    text-shadow: 1px 0px 14px rgb(179, 231, 252);
+}
+a {
+    cursor: pointer;
+    &:hover {
+        @include glowText();
+    }
+}
+/* Mixin */
+@mixin vertical-align($position: relative) {
+    position: $position;
+    top: 50%;
+    -webkit-transform: translateY(-50%);
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+
+@mixin hitFloor() {
+    text-shadow: 0 1px 0 #CD4, 0 1px 0 #c9c9c9, 0 1px 0px #bbb, 0 3px 0 #b9b9b9, 0 2px 0 #aaa, 0 1px 4px rgba(0,0,0,.1), 0 0 5px rgba(0,0,0,.1), 0 1px 3px rgba(0,0,0,.3), 0 3px 5px rgba(0,0,0,.2), 0 5px 1px rgba(0,0,0,.25), 0 10px 7px rgba(0,0,0,.2), 0 10px 14px rgba(0,0,0,.15)
+}
+html, 
+body, #main {
+    height: 100%;
+    margin: 0;
+}
+
+#topHeader {
+    background-color: $backgroundCol1;
+    font-family: $headerFont;
+    width: 100%;
+    font-weight: bold;
+    font-kerning: 20px;
+    color:white;
+    height: 12%;
+    display: inline-block;
+    // text-shadow: 1.5px 1.5px $grey1;
+    > * {
+        display: inline-block;
+    }
+    #titleText {
+        margin-left: 7vw;
+        font-size: 54px;
+        letter-spacing: 4px;
+        // @include hitFloor()
+    }
+    #logoText {
+        letter-spacing: 2px;
+        font-size:18px;
+        margin-left: 12px;
+    }
+
+    #topSignIn {
+        font-size: 20px; 
+        text-decoration: underline;
+        cursor: pointer;
+    }
+    .rightFloat {
+        width: 40%;
+        padding-top: 22px;
+        > * {
+            display: inline-block;
+        }
+    }
+    #searchBar {
+        height: 38px;
+        width: 26vw;
+        right: -3vw;
+        position: relative;
+        background-color: $white1;
+        border-radius: 20px;
+        i.fa-search {
+            position: absolute;
+            color: $backgroundCol1;
+            left: 10px;
+            bottom: 8px;
+            font-size: 22px;
+        }
+        input {
+            background: transparent;
+            border: none;
+            height: 100%;
+            width: 85%;
+            margin-left: 42px;
+            font-size:16px;
+            &:focus {
+                outline: none;
+            }
+        }
+    }
+}
+
+#secondHeader {
+    width: 100%;
+    height: 19%;
+    font-family: $headerFont;
+    font-size: 22px;
+    color: white;
+    background-image: linear-gradient(to right, blue, rgb(2, 178, 201),  $green1);
+    #preferenceHeader {
+        height: 62.5%;
+        #questionsBanner {
+            height : 72%;
+        }
+        #preferenceSignIn {
+            margin-left: auto;
+            margin-right: auto;
+            height: 28%;
+            font-size: 13px;
+            width: 160px;
+            text-align: center;
+            u {
+                cursor: pointer;
+            }
+        }
+        #prefBelt {
+            white-space: nowrap;
+            overflow: hidden;
+            height: 110%;
+        }
+        .prefQuestion {
+            display:inline-block;
+            margin: 0 3em;
+            white-space: nowrap;
+            @include vertical-align();
+            .questionOptions {
+                margin: 0 10px;
+                display: inline-block;
+                .affirmative, .negative {
+                    cursor: pointer;
+                    span {
+                        margin: 0 13px 0 7px;
+                    }
+                }
+            }
+        }
+    }
+    #genreHeader {
+        height: 37.5%;
+        background-color: #2b2b2b33;
+      
+        #genreHeaderInner {
+            text-align: center;
+            height: 100%;
+        }
+        .genreTab {
+            display: inline-block;
+            color: white;
+            height: 100%;
+            margin: 0 3.5vw;
+            position: relative;
+            padding-top: 6px;
+        }
+    }
+    .genreMenu {
+        position: absolute;
+        background: black;
+        width:180px;
+        background-image: linear-gradient(to right, #02bd95, $green1);
+        border-bottom-left-radius: 4px;//lkj
+        border-bottom-right-radius: 4px;
+        top: 88%;
+        right: -65px;    
+        z-index: 5;
+        text-shadow: none;
+        > div {
+            padding: 8px 0;
+            &:hover {
+                @include glowText();
+            }
+        }
+        > div:nth-child(even) {
+            background-color: #2b2b2b33;
+            // border-top: 1px solid #0000002e;
+        }
+    }
+}
+
+#mainBody {
+    background-color: $backgroundCol1;
+    width: 100%;
+    height: 90%;
+    padding-top: 25px;
+
+    .movieRow {
+        width: 90%;
+        height: 49%;
+        margin-left: auto;
+        margin-right: auto;
+        overflow: hidden;
+    }
+    .movieCell {
+        display: inline-block;
+        height: 100%;
+        width: (100%/$moviesPerRow);
+        text-align: center;
+        font-family: $headerFont;
+        color:white;
+    }
+    img {
+        display: block;
+        display: block;
+        max-width: 60%;
+        cursor: pointer;
+        max-height: 100%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    #mainButton {
+        // @include vertical-align()
+        text-align: center;
+    }
+}
+
+
+.rotate90 {
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    transform: rotate(90deg);
+}
+
+* {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently
+                        supported by Chrome and Opera */
+}
+
+.popup {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    background-color: rgba(0,0,0, 0.2);
+    backdrop-filter: blur(10px);  
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 1000;
+  }
+  
+  .popup_inner {
+    position: absolute;
+    left: 32%;
+    right: 32%;
+    top: 28%;
+    border-radius:30px;
+    bottom: 28%;
+    margin: auto;
+    background: $backgroundCol2;
+  }
+
+.rightFloat {
+    float:right;
+}

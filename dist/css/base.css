@@ -1,0 +1,216 @@
+a {
+  cursor: pointer; }
+  a:hover {
+    -webkit-stroke-width: 5.3px;
+    -webkit-stroke-color: #FFFFFF;
+    -webkit-fill-color: #FFFFFF;
+    text-shadow: 1px 0px 14px #b3e7fc; }
+
+/* Mixin */
+html,
+body, #main {
+  height: 100%;
+  margin: 0; }
+
+#topHeader {
+  background-color: #443c4c;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  width: 100%;
+  font-weight: bold;
+  font-kerning: 20px;
+  color: white;
+  height: 12%;
+  display: inline-block; }
+  #topHeader > * {
+    display: inline-block; }
+  #topHeader #titleText {
+    margin-left: 7vw;
+    font-size: 54px;
+    letter-spacing: 4px; }
+  #topHeader #logoText {
+    letter-spacing: 2px;
+    font-size: 18px;
+    margin-left: 12px; }
+  #topHeader #topSignIn {
+    font-size: 20px;
+    text-decoration: underline;
+    cursor: pointer; }
+  #topHeader .rightFloat {
+    width: 40%;
+    padding-top: 22px; }
+    #topHeader .rightFloat > * {
+      display: inline-block; }
+  #topHeader #searchBar {
+    height: 38px;
+    width: 26vw;
+    right: -3vw;
+    position: relative;
+    background-color: #f7f6ff;
+    border-radius: 20px; }
+    #topHeader #searchBar i.fa-search {
+      position: absolute;
+      color: #443c4c;
+      left: 10px;
+      bottom: 8px;
+      font-size: 22px; }
+    #topHeader #searchBar input {
+      background: transparent;
+      border: none;
+      height: 100%;
+      width: 85%;
+      margin-left: 42px;
+      font-size: 16px; }
+      #topHeader #searchBar input:focus {
+        outline: none; }
+
+#secondHeader {
+  width: 100%;
+  height: 19%;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  font-size: 22px;
+  color: white;
+  background-image: linear-gradient(to right, blue, #02b2c9, #02c95c); }
+  #secondHeader #preferenceHeader {
+    height: 62.5%; }
+    #secondHeader #preferenceHeader #questionsBanner {
+      height: 72%; }
+    #secondHeader #preferenceHeader #preferenceSignIn {
+      margin-left: auto;
+      margin-right: auto;
+      height: 28%;
+      font-size: 13px;
+      width: 160px;
+      text-align: center; }
+      #secondHeader #preferenceHeader #preferenceSignIn u {
+        cursor: pointer; }
+    #secondHeader #preferenceHeader #prefBelt {
+      white-space: nowrap;
+      overflow: hidden;
+      height: 110%; }
+    #secondHeader #preferenceHeader .prefQuestion {
+      display: inline-block;
+      margin: 0 3em;
+      white-space: nowrap;
+      position: relative;
+      top: 50%;
+      -webkit-transform: translateY(-50%);
+      -ms-transform: translateY(-50%);
+      transform: translateY(-50%); }
+      #secondHeader #preferenceHeader .prefQuestion .questionOptions {
+        margin: 0 10px;
+        display: inline-block; }
+        #secondHeader #preferenceHeader .prefQuestion .questionOptions .affirmative, #secondHeader #preferenceHeader .prefQuestion .questionOptions .negative {
+          cursor: pointer; }
+          #secondHeader #preferenceHeader .prefQuestion .questionOptions .affirmative span, #secondHeader #preferenceHeader .prefQuestion .questionOptions .negative span {
+            margin: 0 13px 0 7px; }
+  #secondHeader #genreHeader {
+    height: 37.5%;
+    background-color: #2b2b2b33; }
+    #secondHeader #genreHeader #genreHeaderInner {
+      text-align: center;
+      height: 100%; }
+    #secondHeader #genreHeader .genreTab {
+      display: inline-block;
+      color: white;
+      height: 100%;
+      margin: 0 3.5vw;
+      position: relative;
+      padding-top: 6px; }
+  #secondHeader .genreMenu {
+    position: absolute;
+    background: black;
+    width: 180px;
+    background-image: linear-gradient(to right, #02bd95, #02c95c);
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    top: 88%;
+    right: -65px;
+    z-index: 5;
+    text-shadow: none; }
+    #secondHeader .genreMenu > div {
+      padding: 8px 0; }
+      #secondHeader .genreMenu > div:hover {
+        -webkit-stroke-width: 5.3px;
+        -webkit-stroke-color: #FFFFFF;
+        -webkit-fill-color: #FFFFFF;
+        text-shadow: 1px 0px 14px #b3e7fc; }
+    #secondHeader .genreMenu > div:nth-child(even) {
+      background-color: #2b2b2b33; }
+
+#mainBody {
+  background-color: #443c4c;
+  width: 100%;
+  height: 90%;
+  padding-top: 25px; }
+  #mainBody .movieRow {
+    width: 90%;
+    height: 49%;
+    margin-left: auto;
+    margin-right: auto;
+    overflow: hidden; }
+  #mainBody .movieCell {
+    display: inline-block;
+    height: 100%;
+    width: 20%;
+    text-align: center;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    color: white; }
+  #mainBody img {
+    display: block;
+    display: block;
+    max-width: 60%;
+    cursor: pointer;
+    max-height: 100%;
+    margin-left: auto;
+    margin-right: auto; }
+  #mainBody #mainButton {
+    text-align: center; }
+
+.rotate90 {
+  -webkit-transform: rotate(90deg);
+  -moz-transform: rotate(90deg);
+  -o-transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
+  transform: rotate(90deg); }
+
+* {
+  -webkit-touch-callout: none;
+  /* iOS Safari */
+  -webkit-user-select: none;
+  /* Safari */
+  -khtml-user-select: none;
+  /* Konqueror HTML */
+  -moz-user-select: none;
+  /* Firefox */
+  -ms-user-select: none;
+  /* Internet Explorer/Edge */
+  user-select: none;
+  /* Non-prefixed version, currently
+                        supported by Chrome and Opera */ }
+
+.popup {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  background-color: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 1000; }
+
+.popup_inner {
+  position: absolute;
+  left: 32%;
+  right: 32%;
+  top: 28%;
+  border-radius: 30px;
+  bottom: 28%;
+  margin: auto;
+  background: #675b72; }
+
+.rightFloat {
+  float: right; }
