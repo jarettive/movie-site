@@ -115,7 +115,11 @@ body, #main {
       height: 100%;
       margin: 0 3.5vw;
       position: relative;
-      padding-top: 6px; }
+      position: relative;
+      top: 50%;
+      -webkit-transform: translateY(-50%);
+      -ms-transform: translateY(-50%);
+      transform: translateY(-50%); }
   #secondHeader .genreMenu {
     position: absolute;
     background: black;

@@ -165,7 +165,7 @@ body, #main {
             height: 100%;
             margin: 0 3.5vw;
             position: relative;
-            padding-top: 6px;
+            @include vertical-align()
         }
     }
     .genreMenu {
