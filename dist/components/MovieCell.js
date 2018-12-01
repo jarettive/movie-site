@@ -15,6 +15,7 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var React = require("react");
 var MainPage_1 = require("./MainPage");
+var Utilities_1 = require("./Utilities");
 var rowSize = 5;
 var MovieRow = /** @class */ (function (_super) {
     __extends(MovieRow, _super);
@@ -22,8 +23,7 @@ var MovieRow = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     MovieRow.prototype.render = function () {
-        var fountain = { title: "The Fountain", poster_path: "https://m.media-amazon.com/images/M/MV5BMTU5OTczMTcxMV5BMl5BanBnXkFtZTcwNDg3MTEzMw@@._V1_.jpg" };
-        var cells = Array.apply(null, new Array(rowSize)).map(function () { return fountain; });
+        var cells = [];
         if (this.props.rowMovies.length > 0) {
             cells = this.props.rowMovies;
             cells.forEach(function (cell) {
@@ -44,7 +44,7 @@ var MovieCell = /** @class */ (function (_super) {
     }
     MovieCell.prototype.render = function () {
         return (React.createElement("div", { className: "movieCell" },
-            React.createElement("img", { src: this.props.mov.poster_path }),
+            React.createElement("img", { onClick: Utilities_1.unimplemented, src: this.props.mov.poster_path }),
             React.createElement("div", { className: "movieTitle" }, this.props.mov.title)));
     };
     return MovieCell;

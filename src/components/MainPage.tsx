@@ -83,6 +83,14 @@ class MainBody extends React.Component implements observer {
 }
 
 export class MainPage extends React.Component {
+    componentWillMount() {
+        const contentStr = "&language=en-US&sort_by=popularity.desc&include_adult=false&page=1"
+        axios.get(theMDBURL + "discover/movie?" + theMDBKey + contentStr).then(
+        (response) => {
+            movieList.setMovies(response.data.results);
+        }
+        );
+    }
     render() {
         return (
             <>

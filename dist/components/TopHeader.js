@@ -15,13 +15,15 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var React = require("react");
 var MainPage_1 = require("./MainPage");
+var Utilities_1 = require("./Utilities");
 var TopSignIn = /** @class */ (function (_super) {
     __extends(TopSignIn, _super);
     function TopSignIn() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.state = { showPopup: false };
         _this.togglePopup = function () {
-            _this.setState({ showPopup: !_this.state.showPopup });
+            // this.setState({showPopup:!this.state.showPopup});
+            Utilities_1.unimplemented();
         };
         return _this;
     }
@@ -42,14 +44,15 @@ var TopHeader = /** @class */ (function (_super) {
     TopHeader.prototype.render = function () {
         var _this = this;
         return (React.createElement("div", { id: "topHeader" },
-            React.createElement("div", { id: "titleText" }, "MUVIE"),
-            React.createElement("div", { id: "logoText" }, "find movies for you"),
-            React.createElement("div", { className: "rightFloat" },
+            React.createElement("div", { className: "vertCentered" },
+                React.createElement("div", { id: "titleText" }, "MUVIE"),
+                React.createElement("div", { id: "logoText" }, "find movies for you")),
+            React.createElement("div", { className: "rightCentered" },
                 React.createElement(TopSignIn, null),
                 React.createElement("div", { id: "searchBar" },
                     this.state.showText &&
                         React.createElement("i", { className: "fas fa-search" }),
-                    React.createElement("input", { type: "text", placeholder: this.state.showText == true ? "Search movies" : "", onFocus: function (inp) { _this.setState({ showText: false }); }, onBlur: function (inp) { _this.setState({ showText: true }); } })))));
+                    React.createElement("input", { type: "text", placeholder: this.state.showText == true ? "Search movies" : "", onChange: Utilities_1.unimplemented, onFocus: function (inp) { _this.setState({ showText: false }); }, onBlur: function (inp) { _this.setState({ showText: true }); } })))));
     };
     return TopHeader;
 }(React.Component));

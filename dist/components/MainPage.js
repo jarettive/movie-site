@@ -94,6 +94,12 @@ var MainPage = /** @class */ (function (_super) {
     function MainPage() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
+    MainPage.prototype.componentWillMount = function () {
+        var contentStr = "&language=en-US&sort_by=popularity.desc&include_adult=false&page=1";
+        axios_1.default.get(exports.theMDBURL + "discover/movie?" + exports.theMDBKey + contentStr).then(function (response) {
+            exports.movieList.setMovies(response.data.results);
+        });
+    };
     MainPage.prototype.render = function () {
         return (React.createElement(React.Fragment, null,
             React.createElement(TopHeader_1.TopHeader, null),

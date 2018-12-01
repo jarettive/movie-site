@@ -9,5 +9,9 @@ function shuffleArray(array) {
     }
 }
 exports.shuffleArray = shuffleArray;
+function unimplemented() {
+    alert("This feature is unfinished but coming soon!");
+}
+exports.unimplemented = unimplemented;
 ;
 //# sourceMappingURL=Utilities.js.map

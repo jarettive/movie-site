@@ -2,6 +2,7 @@ import * as React from "react";
 import axios from "axios";
 import * as Main from "./MainPage";
 import * as Util from "./Utilities";
+import * as $ from "jquery";
 
 interface filter {name:string, type:string, question:string};
 let filters : filter[] = []
@@ -9,11 +10,12 @@ let filters : filter[] = []
 class PrefSignIn extends React.Component {
     readonly state = {showPopup:false}
     togglePopup = () => {
-        this.setState({showPopup:!this.state.showPopup});
+        // this.setState({showPopup:!this.state.showPopup});
+        Util.unimplemented();
     }
     render() {
        return <div id="preferenceSignIn">
-       <div onClick={this.togglePopup}><u>Sign in</u> to keep preferences</div>
+       <div onClick={this.togglePopup}><u>View all filters</u></div>
        {this.state.showPopup && <Main.SigninPopup closePopup={this.togglePopup.bind(this)}/>}
        </div>
     }
@@ -43,6 +45,19 @@ export class SecondHeader extends React.Component {
     }
 }
 
+function getGenre(element:string) {
+    console.dir(element);
+    element = (element.toLowerCase() === "musical") ? "Music" : element;
+    element = (element.toLowerCase() === "sci-fi") ? "Science Fiction" : element;
+    const contentStr = "&language=en-US&sort_by=popularity.desc&include_adult=false&page=1&with_genres=" 
+            + Main.theMDBGenreMap[element];
+    axios.get(Main.theMDBURL + "discover/movie?" + Main.theMDBKey + contentStr).then(
+        (response) => {
+            Main.movieList.setMovies(response.data.results);
+        }
+    );
+}
+
 class MoreMenu extends React.Component {
     render() {
         return (
@@ -50,7 +65,7 @@ class MoreMenu extends React.Component {
             {
                 Main.otherGenres.map((element) => {
                     return (
-                        <div>{element}</div>
+                        <div onClick={() =>getGenre(element)}>{element}</div>
                     )
                 })
             }
@@ -62,13 +77,9 @@ class MoreMenu extends React.Component {
 class GenreTab extends React.Component<{val:string}> {
     readonly state = {showPopupMenu:false}
     click = () => {
-        const contentStr = "&language=en-US&sort_by=popularity.desc&include_adult=false&page=1&with_genres=" 
-                            + Main.theMDBGenreMap[this.props.val];
-        axios.get(Main.theMDBURL + "discover/movie?" + Main.theMDBKey + contentStr).then(
-            (response) => {
-                Main.movieList.setMovies(response.data.results);
-            }
-        );
+        if (this.props.val !== "More") {
+            getGenre(this.props.val);
+        }
     }
     mouseEnter = () => {
         if (this.props.val == "More"){
@@ -87,7 +98,7 @@ class GenreTab extends React.Component<{val:string}> {
         onMouseEnter={this.mouseEnter.bind(this)}
         onMouseLeave={this.mouseLeave}
         >
-        {this.props.val}
+        <div>{this.props.val}</div>
         {this.state.showPopupMenu && <MoreMenu />}
         </a>)
     }
@@ -95,6 +106,9 @@ class GenreTab extends React.Component<{val:string}> {
 
 class PreferenceBelt extends React.Component {
     readonly state = {fltrs:filters, leftMarg:0}
+
+    index : number = 0;
+    changedBetween: boolean = false;
     componentWillMount() {
         axios.get("\pref-filters.json").then(
             (response) => {
@@ -106,22 +120,39 @@ class PreferenceBelt extends React.Component {
         )
     }
 
+    nextQuestion = () => {
+        var rect = $(".prefQuestion")[0].getBoundingClientRect();
+        this.index += 1;
+        var animationTime = 600;
+        if (this.index >= this.state.fltrs.length) {
+            this.index = 0;
+            animationTime = 1;
+        }
+        var top = -rect.height * this.index;
+        $("#prefBelt").animate({marginTop: top + "px"}, animationTime);
+    }
+
     convey = () => {
+        const el = document.getElementById("prefBelt");
         setInterval(() => {
-            const el = document.getElementById("prefBelt");
-            let num = parseInt(el.style.marginLeft);
-            let str = (num-1) + "px";
-            el.style.marginLeft = str;
-          }, 76);
+            if (!this.changedBetween) {
+                this.nextQuestion();
+            }
+            this.changedBetween = false;
+          }, 10000);
+    }
+
+    questionAnswered = () => {
+        this.nextQuestion();
+        this.changedBetween = true;
     }
 
     render() {
-        let style = {marginLeft:this.state.leftMarg};
         return (
-            <div id="prefBelt" style={style}>
+            <div id="prefBelt" style={{marginTop: 0}}>
             {
                 this.state.fltrs.map((element:filter) => {
-                    return <PreferenceQuestion key={element.name} filt={element}/>
+                    return <PreferenceQuestion key={element.name} questionAnswered={this.questionAnswered} filt={element}/>
                 })
             }
             </div>
@@ -129,7 +160,7 @@ class PreferenceBelt extends React.Component {
     }
 }
 
-class PreferenceQuestion extends React.Component<{filt:filter}> {
+class PreferenceQuestion extends React.Component<{filt:filter, questionAnswered:Function}> {
     readonly state = {positive:true};
 
     constructor(props:any) {
@@ -137,10 +168,13 @@ class PreferenceQuestion extends React.Component<{filt:filter}> {
     }
     positive = () => {
         this.setState({positive:true});
+        this.props.questionAnswered();
     }
     negative = () => {
         this.setState({positive:false});
+        this.props.questionAnswered();
     }
+
     render() {
         return (
             <div className="prefQuestion">

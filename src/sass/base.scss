@@ -48,7 +48,7 @@ body, #main {
     font-weight: bold;
     font-kerning: 20px;
     color:white;
-    height: 12%;
+    height: 14%;
     display: inline-block;
     // text-shadow: 1.5px 1.5px $grey1;
     > * {
@@ -71,9 +71,13 @@ body, #main {
         text-decoration: underline;
         cursor: pointer;
     }
-    .rightFloat {
+    .vertCentered {
+        > * {
+            display: inline-block;
+        }
+    }
+    .rightCentered {
         width: 40%;
-        padding-top: 22px;
         > * {
             display: inline-block;
         }
@@ -116,7 +120,9 @@ body, #main {
     #preferenceHeader {
         height: 62.5%;
         #questionsBanner {
-            height : 72%;
+            text-align: center;
+            height: 72%;
+            overflow: hidden;
         }
         #preferenceSignIn {
             margin-left: auto;
@@ -131,14 +137,20 @@ body, #main {
         }
         #prefBelt {
             white-space: nowrap;
-            overflow: hidden;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 0;
+            text-align: center;
             height: 110%;
         }
         .prefQuestion {
-            display:inline-block;
+            display: block;
             margin: 0 3em;
             white-space: nowrap;
-            @include vertical-align();
+            height: 100%;
+            position: relative;
+            top: 50%;
+            -webkit-transform: translateY(-25%);
             .questionOptions {
                 margin: 0 10px;
                 display: inline-block;
@@ -165,9 +177,12 @@ body, #main {
             height: 100%;
             margin: 0 3.5vw;
             position: relative;
-            @include vertical-align()
+            > div:first-child {
+                @include vertical-align()
+            }
         }
     }
+
     .genreMenu {
         position: absolute;
         background: black;
@@ -175,7 +190,7 @@ body, #main {
         background-image: linear-gradient(to right, #02bd95, $green1);
         border-bottom-left-radius: 4px;//lkj
         border-bottom-right-radius: 4px;
-        top: 88%;
+        top: 100%;
         right: -65px;    
         z-index: 5;
         text-shadow: none;
@@ -207,6 +222,7 @@ body, #main {
     }
     .movieCell {
         display: inline-block;
+        vertical-align: top;
         height: 100%;
         width: (100%/$moviesPerRow);
         text-align: center;
@@ -273,6 +289,10 @@ body, #main {
     background: $backgroundCol2;
   }
 
-.rightFloat {
+.vertCentered {
+    @include vertical-align();
+}
+.rightCentered {
+    @include vertical-align();
     float:right;
 }

@@ -7,5 +7,9 @@ export function shuffleArray(array:any) {
     }
 }
 
+export function unimplemented() {
+    alert("This feature is unfinished but coming soon!");
+}
+
 export interface observable {observers: observer[], notifyObservers:Function};
 export interface observer {observe:Function, notified:Function}

@@ -17,6 +17,7 @@ var React = require("react");
 var axios_1 = require("axios");
 var Main = require("./MainPage");
 var Util = require("./Utilities");
+var $ = require("jquery");
 ;
 var filters = [];
 var PrefSignIn = /** @class */ (function (_super) {
@@ -25,15 +26,15 @@ var PrefSignIn = /** @class */ (function (_super) {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.state = { showPopup: false };
         _this.togglePopup = function () {
-            _this.setState({ showPopup: !_this.state.showPopup });
+            // this.setState({showPopup:!this.state.showPopup});
+            Util.unimplemented();
         };
         return _this;
     }
     PrefSignIn.prototype.render = function () {
         return React.createElement("div", { id: "preferenceSignIn" },
             React.createElement("div", { onClick: this.togglePopup },
-                React.createElement("u", null, "Sign in"),
-                " to keep preferences"),
+                React.createElement("u", null, "View all filters")),
             this.state.showPopup && React.createElement(Main.SigninPopup, { closePopup: this.togglePopup.bind(this) }));
     };
     return PrefSignIn;
@@ -57,6 +58,16 @@ var SecondHeader = /** @class */ (function (_super) {
     return SecondHeader;
 }(React.Component));
 exports.SecondHeader = SecondHeader;
+function getGenre(element) {
+    console.dir(element);
+    element = (element.toLowerCase() === "musical") ? "Music" : element;
+    element = (element.toLowerCase() === "sci-fi") ? "Science Fiction" : element;
+    var contentStr = "&language=en-US&sort_by=popularity.desc&include_adult=false&page=1&with_genres="
+        + Main.theMDBGenreMap[element];
+    axios_1.default.get(Main.theMDBURL + "discover/movie?" + Main.theMDBKey + contentStr).then(function (response) {
+        Main.movieList.setMovies(response.data.results);
+    });
+}
 var MoreMenu = /** @class */ (function (_super) {
     __extends(MoreMenu, _super);
     function MoreMenu() {
@@ -64,7 +75,7 @@ var MoreMenu = /** @class */ (function (_super) {
     }
     MoreMenu.prototype.render = function () {
         return (React.createElement("div", { className: "genreMenu" }, Main.otherGenres.map(function (element) {
-            return (React.createElement("div", null, element));
+            return (React.createElement("div", { onClick: function () { return getGenre(element); } }, element));
         })));
     };
     return MoreMenu;
@@ -75,11 +86,9 @@ var GenreTab = /** @class */ (function (_super) {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.state = { showPopupMenu: false };
         _this.click = function () {
-            var contentStr = "&language=en-US&sort_by=popularity.desc&include_adult=false&page=1&with_genres="
-                + Main.theMDBGenreMap[_this.props.val];
-            axios_1.default.get(Main.theMDBURL + "discover/movie?" + Main.theMDBKey + contentStr).then(function (response) {
-                Main.movieList.setMovies(response.data.results);
-            });
+            if (_this.props.val !== "More") {
+                getGenre(_this.props.val);
+            }
         };
         _this.mouseEnter = function () {
             if (_this.props.val == "More") {
@@ -95,7 +104,7 @@ var GenreTab = /** @class */ (function (_super) {
     }
     GenreTab.prototype.render = function () {
         return (React.createElement("a", { className: "genreTab", onClick: this.click.bind(this), onMouseEnter: this.mouseEnter.bind(this), onMouseLeave: this.mouseLeave },
-            this.props.val,
+            React.createElement("div", null, this.props.val),
             this.state.showPopupMenu && React.createElement(MoreMenu, null)));
     };
     return GenreTab;
@@ -105,13 +114,31 @@ var PreferenceBelt = /** @class */ (function (_super) {
     function PreferenceBelt() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.state = { fltrs: filters, leftMarg: 0 };
+        _this.index = 0;
+        _this.changedBetween = false;
+        _this.nextQuestion = function () {
+            var rect = $(".prefQuestion")[0].getBoundingClientRect();
+            _this.index += 1;
+            var animationTime = 600;
+            if (_this.index >= _this.state.fltrs.length) {
+                _this.index = 0;
+                animationTime = 1;
+            }
+            var top = -rect.height * _this.index;
+            $("#prefBelt").animate({ marginTop: top + "px" }, animationTime);
+        };
         _this.convey = function () {
+            var el = document.getElementById("prefBelt");
             setInterval(function () {
-                var el = document.getElementById("prefBelt");
-                var num = parseInt(el.style.marginLeft);
-                var str = (num - 1) + "px";
-                el.style.marginLeft = str;
-            }, 76);
+                if (!_this.changedBetween) {
+                    _this.nextQuestion();
+                }
+                _this.changedBetween = false;
+            }, 10000);
+        };
+        _this.questionAnswered = function () {
+            _this.nextQuestion();
+            _this.changedBetween = true;
         };
         return _this;
     }
@@ -125,9 +152,9 @@ var PreferenceBelt = /** @class */ (function (_super) {
         });
     };
     PreferenceBelt.prototype.render = function () {
-        var style = { marginLeft: this.state.leftMarg };
-        return (React.createElement("div", { id: "prefBelt", style: style }, this.state.fltrs.map(function (element) {
-            return React.createElement(PreferenceQuestion, { key: element.name, filt: element });
+        var _this = this;
+        return (React.createElement("div", { id: "prefBelt", style: { marginTop: 0 } }, this.state.fltrs.map(function (element) {
+            return React.createElement(PreferenceQuestion, { key: element.name, questionAnswered: _this.questionAnswered, filt: element });
         })));
     };
     return PreferenceBelt;
@@ -139,9 +166,11 @@ var PreferenceQuestion = /** @class */ (function (_super) {
         _this.state = { positive: true };
         _this.positive = function () {
             _this.setState({ positive: true });
+            _this.props.questionAnswered();
         };
         _this.negative = function () {
             _this.setState({ positive: false });
+            _this.props.questionAnswered();
         };
         return _this;
     }
