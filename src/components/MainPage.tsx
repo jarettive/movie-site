@@ -18,36 +18,54 @@ export const otherGenres : string[] = ["Sci-fi", "Animation", "Musical", "Docume
 export class CurrMovieList implements observable {
     name = "CurrMovieList";
     observers: observer[] = [];
+
     private movies: any[] = [];
+    private currMovie : any;
     setMovies = (movies:any[]) => {
         this.movies = movies;
-        this.notifyObservers();
+        this.notifyObservers("listChanged");
+    }
+
+    setCurrMovie = (movieID : string) => {
+        if (movieID == "") {
+            this.notifyObservers("movieUnset");
+            return;
+        }
+        this.currMovie = this.movies.find((element:any) =>{
+            return element.id == movieID;
+        });
+        this.notifyObservers("movieChanged");
     }
 
     getMovies = () => {
         return this.movies;
     }
 
-    notifyObservers() {
+    notifyObservers(event:string) {
         this.observers.forEach(element => {
-            element.notified(this);
+            element.notified(this, event);
         });
     }
 }
 
-export let movieList = new CurrMovieList();
+export const movieList = new CurrMovieList();
 
-class MainBody extends React.Component implements observer {
-    // readonly state = {mov : null};
+class MovieGrid extends React.Component implements observer {
     mov : number[] = [];
-    readonly state = {movies: this.mov};
+    readonly state = {movies: this.mov, shown: true};
     observe(ob:observable) {
         ob.observers.push(this);
     }
-    notified(observable:any) {
-        if (observable instanceof CurrMovieList) {
+    notified(observable:any, event:string) {
+        if (event == "listChanged") {
             observable as CurrMovieList;
             this.setState({movies:observable.getMovies()})
+        }
+        if (event == "movieChanged") {
+            this.setState({shown: false});
+        }
+        if (event === "movieUnset") {
+            this.setState({shown: true});
         }
     }
     componentWillMount() {
@@ -68,17 +86,57 @@ class MainBody extends React.Component implements observer {
             row1Movies = this.state.movies.slice(0, 5);
             row2Movies = this.state.movies.slice(5, 10);
         }
-        
+        return (
+            <div id="movieGrid" className={this.state.shown ? "shown" : "hidden"}>
+            {
+                <>
+                <Movies.MovieRow rowMovies={row1Movies}></Movies.MovieRow>
+                <Movies.MovieRow rowMovies={row2Movies}></Movies.MovieRow>
+                </>
+            }
+            </div>
+        )
+       
+    }
+}
+
+class MainBody extends React.Component {
+    render() {
         return (
         <div id="mainBody">
-        {
-            <>
-            <Movies.MovieRow rowMovies={row1Movies}></Movies.MovieRow>
-            <Movies.MovieRow rowMovies={row2Movies}></Movies.MovieRow>
-            </>
-        }
+          <MovieGrid/>
+          <SoloMovieDisplay/>
         </div>
         );
+    }
+}
+
+class SoloMovieDisplay extends React.Component implements observer {
+    readonly state = {shown: false};
+    observe(ob:observable) {
+        ob.observers.push(this);
+    }
+    notified(observable:any, event:string) {
+        if (event == "movieChanged") {
+            this.setState({shown: true});
+        }
+        if (event === "movieUnset") {
+            this.setState({shown: false});
+        }
+    }
+    componentWillMount() {
+        this.observe(movieList);
+    }
+    exit() {
+        console.log("exiting");
+        movieList.setCurrMovie("")
+    }
+    render() {
+        return (
+            <div id="soloMovieDisplay" className={this.state.shown ? "shown" : "hidden"}>
+                <div onClick={this.exit}>sldkfjslkdfj</div>
+            </div>
+        )
     }
 }
 

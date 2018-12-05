@@ -12400,41 +12400,56 @@ var CurrMovieList = /** @class */ (function () {
         this.movies = [];
         this.setMovies = function (movies) {
             _this.movies = movies;
-            _this.notifyObservers();
+            _this.notifyObservers("listChanged");
+        };
+        this.setCurrMovie = function (movieID) {
+            if (movieID == "") {
+                _this.notifyObservers("movieUnset");
+                return;
+            }
+            _this.currMovie = _this.movies.find(function (element) {
+                return element.id == movieID;
+            });
+            _this.notifyObservers("movieChanged");
         };
         this.getMovies = function () {
             return _this.movies;
         };
     }
-    CurrMovieList.prototype.notifyObservers = function () {
+    CurrMovieList.prototype.notifyObservers = function (event) {
         var _this = this;
         this.observers.forEach(function (element) {
-            element.notified(_this);
+            element.notified(_this, event);
         });
     };
     return CurrMovieList;
 }());
 exports.CurrMovieList = CurrMovieList;
 exports.movieList = new CurrMovieList();
-var MainBody = /** @class */ (function (_super) {
-    __extends(MainBody, _super);
-    function MainBody() {
+var MovieGrid = /** @class */ (function (_super) {
+    __extends(MovieGrid, _super);
+    function MovieGrid() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
-        // readonly state = {mov : null};
         _this.mov = [];
-        _this.state = { movies: _this.mov };
+        _this.state = { movies: _this.mov, shown: true };
         return _this;
     }
-    MainBody.prototype.observe = function (ob) {
+    MovieGrid.prototype.observe = function (ob) {
         ob.observers.push(this);
     };
-    MainBody.prototype.notified = function (observable) {
-        if (observable instanceof CurrMovieList) {
+    MovieGrid.prototype.notified = function (observable, event) {
+        if (event == "listChanged") {
             observable;
             this.setState({ movies: observable.getMovies() });
         }
+        if (event == "movieChanged") {
+            this.setState({ shown: false });
+        }
+        if (event === "movieUnset") {
+            this.setState({ shown: true });
+        }
     };
-    MainBody.prototype.componentWillMount = function () {
+    MovieGrid.prototype.componentWillMount = function () {
         this.observe(exports.movieList);
         axios_1.default.get(exports.theMDBURL + "genre/movie/list?" + exports.theMDBKey + exports.lang).then(function (response) {
             ;
@@ -12443,18 +12458,61 @@ var MainBody = /** @class */ (function (_super) {
             });
         });
     };
-    MainBody.prototype.render = function () {
+    MovieGrid.prototype.render = function () {
         var row1Movies = [];
         var row2Movies = [];
         if (this.state.movies && this.state.movies.length >= 10) {
             row1Movies = this.state.movies.slice(0, 5);
             row2Movies = this.state.movies.slice(5, 10);
         }
-        return (React.createElement("div", { id: "mainBody" }, React.createElement(React.Fragment, null,
+        return (React.createElement("div", { id: "movieGrid", className: this.state.shown ? "shown" : "hidden" }, React.createElement(React.Fragment, null,
             React.createElement(Movies.MovieRow, { rowMovies: row1Movies }),
             React.createElement(Movies.MovieRow, { rowMovies: row2Movies }))));
     };
+    return MovieGrid;
+}(React.Component));
+var MainBody = /** @class */ (function (_super) {
+    __extends(MainBody, _super);
+    function MainBody() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    MainBody.prototype.render = function () {
+        return (React.createElement("div", { id: "mainBody" },
+            React.createElement(MovieGrid, null),
+            React.createElement(SoloMovieDisplay, null)));
+    };
     return MainBody;
+}(React.Component));
+var SoloMovieDisplay = /** @class */ (function (_super) {
+    __extends(SoloMovieDisplay, _super);
+    function SoloMovieDisplay() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.state = { shown: false };
+        return _this;
+    }
+    SoloMovieDisplay.prototype.observe = function (ob) {
+        ob.observers.push(this);
+    };
+    SoloMovieDisplay.prototype.notified = function (observable, event) {
+        if (event == "movieChanged") {
+            this.setState({ shown: true });
+        }
+        if (event === "movieUnset") {
+            this.setState({ shown: false });
+        }
+    };
+    SoloMovieDisplay.prototype.componentWillMount = function () {
+        this.observe(exports.movieList);
+    };
+    SoloMovieDisplay.prototype.exit = function () {
+        console.log("exiting");
+        exports.movieList.setCurrMovie("");
+    };
+    SoloMovieDisplay.prototype.render = function () {
+        return (React.createElement("div", { id: "soloMovieDisplay", className: this.state.shown ? "shown" : "hidden" },
+            React.createElement("div", { onClick: this.exit }, "sldkfjslkdfj")));
+    };
+    return SoloMovieDisplay;
 }(React.Component));
 var MainPage = /** @class */ (function (_super) {
     __extends(MainPage, _super);
@@ -12535,7 +12593,6 @@ var PrefSignIn = /** @class */ (function (_super) {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.state = { showPopup: false };
         _this.togglePopup = function () {
-            // this.setState({showPopup:!this.state.showPopup});
             Util.unimplemented();
         };
         return _this;
@@ -12568,7 +12625,6 @@ var SecondHeader = /** @class */ (function (_super) {
 }(React.Component));
 exports.SecondHeader = SecondHeader;
 function getGenre(element) {
-    console.dir(element);
     element = (element.toLowerCase() === "musical") ? "Music" : element;
     element = (element.toLowerCase() === "sci-fi") ? "Science Fiction" : element;
     var contentStr = "&language=en-US&sort_by=popularity.desc&include_adult=false&page=1&with_genres="
@@ -12744,6 +12800,7 @@ var TopSignIn = /** @class */ (function (_super) {
     };
     return TopSignIn;
 }(React.Component));
+///search/multi?language=en-US&query=zoo
 var TopHeader = /** @class */ (function (_super) {
     __extends(TopHeader, _super);
     function TopHeader() {
@@ -12824,7 +12881,6 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var React = __webpack_require__(/*! react */ "react");
 var MainPage_1 = __webpack_require__(/*! ./MainPage */ "./src/components/MainPage.tsx");
-var Utilities_1 = __webpack_require__(/*! ./Utilities */ "./src/components/Utilities.ts");
 var rowSize = 5;
 var MovieRow = /** @class */ (function (_super) {
     __extends(MovieRow, _super);
@@ -12836,7 +12892,7 @@ var MovieRow = /** @class */ (function (_super) {
         if (this.props.rowMovies.length > 0) {
             cells = this.props.rowMovies;
             cells.forEach(function (cell) {
-                cell.poster_path = MainPage_1.img300_450_url + cell.poster_path;
+                cell.img_path = MainPage_1.img300_450_url + cell.poster_path;
             });
         }
         return React.createElement("div", { className: "movieRow" }, cells.map(function (element) {
@@ -12849,11 +12905,15 @@ exports.MovieRow = MovieRow;
 var MovieCell = /** @class */ (function (_super) {
     __extends(MovieCell, _super);
     function MovieCell() {
-        return _super !== null && _super.apply(this, arguments) || this;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.viewMovie = function () {
+            MainPage_1.movieList.setCurrMovie(_this.props.mov.id);
+        };
+        return _this;
     }
     MovieCell.prototype.render = function () {
         return (React.createElement("div", { className: "movieCell" },
-            React.createElement("img", { onClick: Utilities_1.unimplemented, src: this.props.mov.poster_path }),
+            React.createElement("img", { onClick: this.viewMovie, src: this.props.mov.img_path }),
             React.createElement("div", { className: "movieTitle" }, this.props.mov.title)));
     };
     return MovieCell;

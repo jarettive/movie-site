@@ -1,7 +1,6 @@
 import * as React from "react";
 import axios from "axios";
 import {movieList, CurrMovieList, img300_450_url} from "./MainPage";
-import {observer, observable} from "./Utilities";
 import {unimplemented} from "./Utilities";
 
 const rowSize = 5;
@@ -11,8 +10,8 @@ export class MovieRow extends React.Component<{rowMovies:any[]}> {
         let cells = [];
         if (this.props.rowMovies.length > 0 ) {
             cells = this.props.rowMovies;
-            cells.forEach((cell:movieCellInfo) => {
-                cell.poster_path = img300_450_url + cell.poster_path;
+            cells.forEach((cell:any) => {
+                cell.img_path = img300_450_url + cell.poster_path;
             });
         }
         return <div className="movieRow">
@@ -25,13 +24,16 @@ export class MovieRow extends React.Component<{rowMovies:any[]}> {
     }
 }
 
-interface movieCellInfo {title:string, poster_path:string}
+interface movieCellInfo {title:string, img_path:string, id:string}
 
 export class MovieCell extends React.Component<{mov:movieCellInfo}> {
+    viewMovie = () => {
+        movieList.setCurrMovie(this.props.mov.id)
+    }
     render() {
         return (
             <div className="movieCell">
-                <img onClick={unimplemented} src={this.props.mov.poster_path}></img>
+                <img onClick={this.viewMovie} src={this.props.mov.img_path}></img>
                 <div className="movieTitle">{this.props.mov.title}</div>
             </div>
         )

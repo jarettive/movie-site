@@ -151,12 +151,20 @@ body, #main {
   background-color: #443c4c;
   width: 100%;
   height: 90%;
-  padding-top: 25px; }
+  position: relative; }
+  #mainBody #movieGrid {
+    padding-top: 25px;
+    position: absolute; }
+  #mainBody #soloMovieDisplay {
+    position: absolute;
+    width: 100%;
+    height: 100%; }
   #mainBody .movieRow {
     width: 90%;
     height: 49%;
     margin-left: auto;
     margin-right: auto;
+    padding-bottom: 18px;
     overflow: hidden; }
   #mainBody .movieCell {
     display: inline-block;
@@ -237,3 +245,12 @@ body, #main {
   -ms-transform: translateY(-50%);
   transform: translateY(-50%);
   float: right; }
+
+.shown {
+  opacity: 1;
+  transition: all 220ms linear; }
+
+.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transition: all 220ms linear; }

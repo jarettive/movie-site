@@ -10,7 +10,6 @@ let filters : filter[] = []
 class PrefSignIn extends React.Component {
     readonly state = {showPopup:false}
     togglePopup = () => {
-        // this.setState({showPopup:!this.state.showPopup});
         Util.unimplemented();
     }
     render() {
@@ -46,7 +45,6 @@ export class SecondHeader extends React.Component {
 }
 
 function getGenre(element:string) {
-    console.dir(element);
     element = (element.toLowerCase() === "musical") ? "Music" : element;
     element = (element.toLowerCase() === "sci-fi") ? "Science Fiction" : element;
     const contentStr = "&language=en-US&sort_by=popularity.desc&include_adult=false&page=1&with_genres=" 
