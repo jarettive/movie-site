@@ -11,15 +11,14 @@ class PrefSignIn extends React.Component {
     constructor() {
         super(...arguments);
         this.state = { showPopup: false };
-        this.togglePopup = () => {
-            Util.unimplemented();
+        this.showFilters = () => {
+            Main.mainBus.notifyObservers("showFilters");
         };
     }
     render() {
         return React.createElement("div", { id: "preferenceSignIn" },
-            React.createElement("div", { onClick: this.togglePopup },
-                React.createElement("u", null, "View all filters")),
-            this.state.showPopup && React.createElement(Main.SigninPopup, { closePopup: this.togglePopup.bind(this) }));
+            React.createElement("div", { onClick: this.showFilters },
+                React.createElement("u", null, "View all filters")));
     }
 }
 class SecondHeader extends React.Component {

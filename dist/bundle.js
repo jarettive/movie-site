@@ -12385,13 +12385,29 @@ var axios_1 = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
 var Movies = __webpack_require__(/*! ./movieCell */ "./src/components/movieCell.tsx");
 var TopHeader_1 = __webpack_require__(/*! ./TopHeader */ "./src/components/TopHeader.tsx");
 var SecondHeader_1 = __webpack_require__(/*! ./SecondHeader */ "./src/components/SecondHeader.tsx");
+var SoloDisplay_1 = __webpack_require__(/*! ./SoloDisplay */ "./src/components/SoloDisplay.tsx");
 exports.theMDBKey = "api_key=29d987bf9cd230bfccd9b7ca74c6a3bc";
 exports.theMDBURL = "https://api.themoviedb.org/3/";
 exports.lang = "&language=en-US";
 exports.img300_450_url = "https://image.tmdb.org/t/p/w300_and_h450_bestv2";
+exports.img600_900_url = "https://image.tmdb.org/t/p/w600_and_h900_bestv2";
 exports.theMDBGenreMap = {};
 exports.popularGenres = ["Action", "Drama", "Comedy", "Thriller", "Horror", "Romance", "More"];
 exports.otherGenres = ["Sci-fi", "Animation", "Musical", "Documentary"];
+var movieCount = 6;
+var MainBus = /** @class */ (function () {
+    function MainBus() {
+        var _this = this;
+        this.observers = [];
+        this.notifyObservers = function (event) {
+            _this.observers.forEach(function (element) {
+                element.notified(_this, event);
+            });
+        };
+    }
+    return MainBus;
+}());
+exports.mainBus = new MainBus();
 var CurrMovieList = /** @class */ (function () {
     function CurrMovieList() {
         var _this = this;
@@ -12403,10 +12419,6 @@ var CurrMovieList = /** @class */ (function () {
             _this.notifyObservers("listChanged");
         };
         this.setCurrMovie = function (movieID) {
-            if (movieID == "") {
-                _this.notifyObservers("movieUnset");
-                return;
-            }
             _this.currMovie = _this.movies.find(function (element) {
                 return element.id == movieID;
             });
@@ -12416,6 +12428,9 @@ var CurrMovieList = /** @class */ (function () {
             return _this.movies;
         };
     }
+    CurrMovieList.prototype.getcurrMovie = function () {
+        return this.currMovie;
+    };
     CurrMovieList.prototype.notifyObservers = function (event) {
         var _this = this;
         this.observers.forEach(function (element) {
@@ -12426,31 +12441,31 @@ var CurrMovieList = /** @class */ (function () {
 }());
 exports.CurrMovieList = CurrMovieList;
 exports.movieList = new CurrMovieList();
-var MovieGrid = /** @class */ (function (_super) {
-    __extends(MovieGrid, _super);
-    function MovieGrid() {
+var mainview;
+(function (mainview) {
+    mainview[mainview["grid"] = 0] = "grid";
+    mainview[mainview["solo"] = 1] = "solo";
+    mainview[mainview["filters"] = 2] = "filters";
+    mainview[mainview["last"] = 3] = "last";
+})(mainview = exports.mainview || (exports.mainview = {}));
+;
+var MainBody = /** @class */ (function (_super) {
+    __extends(MainBody, _super);
+    function MainBody() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.mov = [];
-        _this.state = { movies: _this.mov, shown: true };
+        _this.state = { showingChild: mainview.grid, last: mainview.grid };
+        _this.movies = [];
+        _this.childCallback = function (child) {
+            if (child == mainview.last) {
+                child = _this.state.last;
+            }
+            _this.setState({ showingChild: child, last: _this.state.showingChild });
+        };
         return _this;
     }
-    MovieGrid.prototype.observe = function (ob) {
-        ob.observers.push(this);
-    };
-    MovieGrid.prototype.notified = function (observable, event) {
-        if (event == "listChanged") {
-            observable;
-            this.setState({ movies: observable.getMovies() });
-        }
-        if (event == "movieChanged") {
-            this.setState({ shown: false });
-        }
-        if (event === "movieUnset") {
-            this.setState({ shown: true });
-        }
-    };
-    MovieGrid.prototype.componentWillMount = function () {
+    MainBody.prototype.componentWillMount = function () {
         this.observe(exports.movieList);
+        this.observe(exports.mainBus);
         axios_1.default.get(exports.theMDBURL + "genre/movie/list?" + exports.theMDBKey + exports.lang).then(function (response) {
             ;
             response.data.genres.forEach(function (genre) {
@@ -12458,61 +12473,59 @@ var MovieGrid = /** @class */ (function (_super) {
             });
         });
     };
+    MainBody.prototype.observe = function (ob) {
+        ob.observers.push(this);
+    };
+    MainBody.prototype.notified = function (observable, event) {
+        if (event == "movieChanged") {
+            this.setState({ showingChild: mainview.solo, last: this.state.showingChild });
+        }
+        if (event == "listChanged") {
+            this.movies = exports.movieList.getMovies();
+            this.setState({ showingChild: mainview.grid, last: this.state.showingChild });
+        }
+        if (event == "showFilters") {
+            this.setState({ showingChild: mainview.filters, last: this.state.showingChild });
+        }
+    };
+    MainBody.prototype.render = function () {
+        return (React.createElement("div", { id: "mainBody" },
+            React.createElement(MovieGrid, { item: { callBack: this.childCallback, show: this.state.showingChild == mainview.grid }, movies: this.movies }),
+            React.createElement(SoloDisplay_1.SoloMovieDisplay, { item: { callBack: this.childCallback, show: this.state.showingChild == mainview.solo }, movie: exports.movieList.getcurrMovie() }),
+            React.createElement(FilterPage, { item: { callBack: this.childCallback, show: this.state.showingChild == mainview.filters } })));
+    };
+    return MainBody;
+}(React.Component));
+var FilterPage = /** @class */ (function (_super) {
+    __extends(FilterPage, _super);
+    function FilterPage() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    FilterPage.prototype.render = function () {
+        var _this = this;
+        return (React.createElement("div", { id: "filterPage", onClick: function () { _this.props.item.callBack(mainview.last); }, className: this.props.item.show ? "shown" : "hidden" }));
+    };
+    return FilterPage;
+}(React.Component));
+var MovieGrid = /** @class */ (function (_super) {
+    __extends(MovieGrid, _super);
+    function MovieGrid() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.mov = [];
+        return _this;
+    }
     MovieGrid.prototype.render = function () {
         var row1Movies = [];
         var row2Movies = [];
-        if (this.state.movies && this.state.movies.length >= 10) {
-            row1Movies = this.state.movies.slice(0, 5);
-            row2Movies = this.state.movies.slice(5, 10);
+        if (this.props.movies && this.props.movies.length >= 10) {
+            row1Movies = this.props.movies.slice(0, movieCount);
+            row2Movies = this.props.movies.slice(movieCount, movieCount * 2);
         }
-        return (React.createElement("div", { id: "movieGrid", className: this.state.shown ? "shown" : "hidden" }, React.createElement(React.Fragment, null,
+        return (React.createElement("div", { id: "movieGrid", className: this.props.item.show ? "shown" : "hidden" }, React.createElement(React.Fragment, null,
             React.createElement(Movies.MovieRow, { rowMovies: row1Movies }),
             React.createElement(Movies.MovieRow, { rowMovies: row2Movies }))));
     };
     return MovieGrid;
-}(React.Component));
-var MainBody = /** @class */ (function (_super) {
-    __extends(MainBody, _super);
-    function MainBody() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    MainBody.prototype.render = function () {
-        return (React.createElement("div", { id: "mainBody" },
-            React.createElement(MovieGrid, null),
-            React.createElement(SoloMovieDisplay, null)));
-    };
-    return MainBody;
-}(React.Component));
-var SoloMovieDisplay = /** @class */ (function (_super) {
-    __extends(SoloMovieDisplay, _super);
-    function SoloMovieDisplay() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.state = { shown: false };
-        return _this;
-    }
-    SoloMovieDisplay.prototype.observe = function (ob) {
-        ob.observers.push(this);
-    };
-    SoloMovieDisplay.prototype.notified = function (observable, event) {
-        if (event == "movieChanged") {
-            this.setState({ shown: true });
-        }
-        if (event === "movieUnset") {
-            this.setState({ shown: false });
-        }
-    };
-    SoloMovieDisplay.prototype.componentWillMount = function () {
-        this.observe(exports.movieList);
-    };
-    SoloMovieDisplay.prototype.exit = function () {
-        console.log("exiting");
-        exports.movieList.setCurrMovie("");
-    };
-    SoloMovieDisplay.prototype.render = function () {
-        return (React.createElement("div", { id: "soloMovieDisplay", className: this.state.shown ? "shown" : "hidden" },
-            React.createElement("div", { onClick: this.exit }, "sldkfjslkdfj")));
-    };
-    return SoloMovieDisplay;
 }(React.Component));
 var MainPage = /** @class */ (function (_super) {
     __extends(MainPage, _super);
@@ -12592,16 +12605,15 @@ var PrefSignIn = /** @class */ (function (_super) {
     function PrefSignIn() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.state = { showPopup: false };
-        _this.togglePopup = function () {
-            Util.unimplemented();
+        _this.showFilters = function () {
+            Main.mainBus.notifyObservers("showFilters");
         };
         return _this;
     }
     PrefSignIn.prototype.render = function () {
         return React.createElement("div", { id: "preferenceSignIn" },
-            React.createElement("div", { onClick: this.togglePopup },
-                React.createElement("u", null, "View all filters")),
-            this.state.showPopup && React.createElement(Main.SigninPopup, { closePopup: this.togglePopup.bind(this) }));
+            React.createElement("div", { onClick: this.showFilters },
+                React.createElement("u", null, "View all filters")));
     };
     return PrefSignIn;
 }(React.Component));
@@ -12752,6 +12764,50 @@ var PreferenceQuestion = /** @class */ (function (_super) {
     };
     return PreferenceQuestion;
 }(React.Component));
+
+
+/***/ }),
+
+/***/ "./src/components/SoloDisplay.tsx":
+/*!****************************************!*\
+  !*** ./src/components/SoloDisplay.tsx ***!
+  \****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var MainPage_1 = __webpack_require__(/*! ./MainPage */ "./src/components/MainPage.tsx");
+var React = __webpack_require__(/*! react */ "react");
+var SoloMovieDisplay = /** @class */ (function (_super) {
+    __extends(SoloMovieDisplay, _super);
+    function SoloMovieDisplay() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    SoloMovieDisplay.prototype.render = function () {
+        var _this = this;
+        console.dir(this.props.movie);
+        return (React.createElement("div", { id: "soloMovieDisplay", className: this.props.item.show ? "shown" : "hidden" },
+            React.createElement("i", { id: "soloClose", className: "far fa-times-circle", onClick: function () { _this.props.item.callBack(MainPage_1.mainview.last); } }),
+            React.createElement("img", { src: this.props.movie && MainPage_1.img600_900_url + this.props.movie.poster_path })));
+    };
+    return SoloMovieDisplay;
+}(React.Component));
+exports.SoloMovieDisplay = SoloMovieDisplay;
 
 
 /***/ }),

@@ -9,13 +9,12 @@ let filters : filter[] = []
 
 class PrefSignIn extends React.Component {
     readonly state = {showPopup:false}
-    togglePopup = () => {
-        Util.unimplemented();
+    showFilters = () => {
+         Main.mainBus.notifyObservers("showFilters");   
     }
     render() {
        return <div id="preferenceSignIn">
-       <div onClick={this.togglePopup}><u>View all filters</u></div>
-       {this.state.showPopup && <Main.SigninPopup closePopup={this.togglePopup.bind(this)}/>}
+       <div onClick={this.showFilters}><u>View all filters</u></div>
        </div>
     }
 }

@@ -150,36 +150,69 @@ body, #main {
 #mainBody {
   background-color: #443c4c;
   width: 100%;
-  height: 90%;
+  height: 96%;
   position: relative; }
   #mainBody #movieGrid {
-    padding-top: 25px;
-    position: absolute; }
-  #mainBody #soloMovieDisplay {
+    position: absolute;
+    height: 100%;
+    width: 100%; }
+  #mainBody #filterPage {
+    top: 0;
     position: absolute;
     width: 100%;
     height: 100%; }
+  #mainBody #soloMovieDisplay {
+    width: 80%;
+    height: 85%;
+    border-radius: 30px;
+    background-color: #675b72;
+    position: relative;
+    left: 50%;
+    top: 50%;
+    transform: translateX(-50%) translateY(-50%); }
+    #mainBody #soloMovieDisplay #soloClose {
+      position: absolute;
+      top: 10px;
+      font-size: 50px;
+      color: white;
+      cursor: pointer;
+      right: 10px; }
+      #mainBody #soloMovieDisplay #soloClose:hover {
+        text-shadow: 1px 0px 8px #b3e7fc; }
+    #mainBody #soloMovieDisplay img {
+      height: 80%; }
   #mainBody .movieRow {
-    width: 90%;
-    height: 49%;
+    width: 100%;
+    height: fit-content;
+    white-space: nowrap;
+    text-align: center;
+    padding-top: 8px;
     margin-left: auto;
     margin-right: auto;
-    padding-bottom: 18px;
     overflow: hidden; }
   #mainBody .movieCell {
     display: inline-block;
     vertical-align: top;
     height: 100%;
-    width: 20%;
+    position: relative;
+    width: 15.33333%;
     text-align: center;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
     color: white; }
-  #mainBody img {
-    display: block;
-    display: block;
-    max-width: 60%;
-    cursor: pointer;
-    max-height: 100%;
+    #mainBody .movieCell img {
+      display: block;
+      display: block;
+      max-width: 86%;
+      border-radius: 5px;
+      cursor: pointer;
+      max-height: 100%;
+      margin-left: auto;
+      margin-right: auto; }
+  #mainBody .movieTitle {
+    width: 92%;
+    font-size: 18px;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
     margin-left: auto;
     margin-right: auto; }
   #mainBody #mainButton {

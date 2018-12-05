@@ -4,10 +4,11 @@ $grey1: #2b2b2b;
 $white1: #f7f6ff;
 $backgroundCol1 : #443c4c;
 $backgroundCol2 : #675b72;
+$backgroundCol3 : #6d5982;
 
 $headerFont : -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 
-$moviesPerRow: 5;
+$moviesPerRow: 6;
 
 $green1 : rgb(2, 201, 92);
 
@@ -35,6 +36,14 @@ a {
 @mixin hitFloor() {
     text-shadow: 0 1px 0 #CD4, 0 1px 0 #c9c9c9, 0 1px 0px #bbb, 0 3px 0 #b9b9b9, 0 2px 0 #aaa, 0 1px 4px rgba(0,0,0,.1), 0 0 5px rgba(0,0,0,.1), 0 1px 3px rgba(0,0,0,.3), 0 3px 5px rgba(0,0,0,.2), 0 5px 1px rgba(0,0,0,.25), 0 10px 7px rgba(0,0,0,.2), 0 10px 14px rgba(0,0,0,.15)
 }
+
+@mixin absolute-center($position) {
+    position: $position;
+    left: 50%;
+    top: 50%;
+    transform: translateX(-50%) translateY(-50%);
+}
+
 html, 
 body, #main {
     height: 100%;
@@ -210,44 +219,85 @@ body, #main {
 #mainBody {
     background-color: $backgroundCol1;
     width: 100%;
-    height: 90%;
+    height: 96%;
     position: relative;
     #movieGrid {
-        padding-top: 25px;
         position: absolute;
+        height: 100%;
+        width: 100%;
     }
 
-    #soloMovieDisplay {
+    #filterPage {
+        top: 0;
         position: absolute;
         width: 100%;
         height: 100%;
     }
+
+    #soloMovieDisplay {
+        width: 80%;
+        height: 85%;
+        border-radius: 30px;
+        background-color: $backgroundCol2;
+
+        #soloClose {
+            position: absolute;
+            top: 10px;
+            font-size: 50px;
+            color: white;
+            cursor: pointer;
+            right: 10px;
+            &:hover {
+                text-shadow: 1px 0px 8px #b3e7fc;
+            }
+        }
+
+        img {
+            height: 80%;
+        }
+
+        @include absolute-center(relative);
+    }
+
     .movieRow {
-        width: 90%;
-        height: 49%;
+        width: 100%;
+        height: fit-content;
+        white-space: nowrap;
+        text-align: center;
+        padding-top: 8px;
         margin-left: auto;
         margin-right: auto;
-        padding-bottom: 18px;
         overflow: hidden;
     }
     .movieCell {
         display: inline-block;
         vertical-align: top;
         height: 100%;
-        width: (100%/$moviesPerRow);
+        position: relative;
+        width: (92%/$moviesPerRow);
         text-align: center;
         font-family: $headerFont;
         color:white;
+        img {
+            display: block;
+            display: block;
+            max-width: 86%;
+            border-radius: 5px;
+            cursor: pointer;
+            max-height: 100%;
+            margin-left: auto;
+            margin-right: auto;
+        }
     }
-    img {
-        display: block;
-        display: block;
-        max-width: 60%;
-        cursor: pointer;
-        max-height: 100%;
+    .movieTitle {
+        width: 92%;
+        font-size: 18px;
+        overflow-x: hidden;
+        text-overflow: ellipsis;
         margin-left: auto;
         margin-right: auto;
     }
+   
     #mainButton {
         // @include vertical-align()
         text-align: center;

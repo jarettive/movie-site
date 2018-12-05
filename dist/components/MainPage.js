@@ -5,13 +5,27 @@ const axios_1 = require("axios");
 const Movies = require("./movieCell");
 const TopHeader_1 = require("./TopHeader");
 const SecondHeader_1 = require("./SecondHeader");
+const SoloDisplay_1 = require("./SoloDisplay");
 exports.theMDBKey = "api_key=29d987bf9cd230bfccd9b7ca74c6a3bc";
 exports.theMDBURL = "https://api.themoviedb.org/3/";
 exports.lang = "&language=en-US";
 exports.img300_450_url = "https://image.tmdb.org/t/p/w300_and_h450_bestv2";
+exports.img600_900_url = "https://image.tmdb.org/t/p/w600_and_h900_bestv2";
 exports.theMDBGenreMap = {};
 exports.popularGenres = ["Action", "Drama", "Comedy", "Thriller", "Horror", "Romance", "More"];
 exports.otherGenres = ["Sci-fi", "Animation", "Musical", "Documentary"];
+const movieCount = 6;
+class MainBus {
+    constructor() {
+        this.observers = [];
+        this.notifyObservers = (event) => {
+            this.observers.forEach(element => {
+                element.notified(this, event);
+            });
+        };
+    }
+}
+exports.mainBus = new MainBus();
 class CurrMovieList {
     constructor() {
         this.name = "CurrMovieList";
@@ -22,10 +36,6 @@ class CurrMovieList {
             this.notifyObservers("listChanged");
         };
         this.setCurrMovie = (movieID) => {
-            if (movieID == "") {
-                this.notifyObservers("movieUnset");
-                return;
-            }
             this.currMovie = this.movies.find((element) => {
                 return element.id == movieID;
             });
@@ -35,6 +45,9 @@ class CurrMovieList {
             return this.movies;
         };
     }
+    getcurrMovie() {
+        return this.currMovie;
+    }
     notifyObservers(event) {
         this.observers.forEach(element => {
             element.notified(this, event);
@@ -43,29 +56,29 @@ class CurrMovieList {
 }
 exports.CurrMovieList = CurrMovieList;
 exports.movieList = new CurrMovieList();
-class MovieGrid extends React.Component {
+var mainview;
+(function (mainview) {
+    mainview[mainview["grid"] = 0] = "grid";
+    mainview[mainview["solo"] = 1] = "solo";
+    mainview[mainview["filters"] = 2] = "filters";
+    mainview[mainview["last"] = 3] = "last";
+})(mainview = exports.mainview || (exports.mainview = {}));
+;
+class MainBody extends React.Component {
     constructor() {
         super(...arguments);
-        this.mov = [];
-        this.state = { movies: this.mov, shown: true };
-    }
-    observe(ob) {
-        ob.observers.push(this);
-    }
-    notified(observable, event) {
-        if (event == "listChanged") {
-            observable;
-            this.setState({ movies: observable.getMovies() });
-        }
-        if (event == "movieChanged") {
-            this.setState({ shown: false });
-        }
-        if (event === "movieUnset") {
-            this.setState({ shown: true });
-        }
+        this.state = { showingChild: mainview.grid, last: mainview.grid };
+        this.movies = [];
+        this.childCallback = (child) => {
+            if (child == mainview.last) {
+                child = this.state.last;
+            }
+            this.setState({ showingChild: child, last: this.state.showingChild });
+        };
     }
     componentWillMount() {
         this.observe(exports.movieList);
+        this.observe(exports.mainBus);
         axios_1.default.get(exports.theMDBURL + "genre/movie/list?" + exports.theMDBKey + exports.lang).then((response) => {
             ;
             response.data.genres.forEach((genre) => {
@@ -73,51 +86,48 @@ class MovieGrid extends React.Component {
             });
         });
     }
-    render() {
-        let row1Movies = [];
-        let row2Movies = [];
-        if (this.state.movies && this.state.movies.length >= 10) {
-            row1Movies = this.state.movies.slice(0, 5);
-            row2Movies = this.state.movies.slice(5, 10);
-        }
-        return (React.createElement("div", { id: "movieGrid", className: this.state.shown ? "shown" : "hidden" }, React.createElement(React.Fragment, null,
-            React.createElement(Movies.MovieRow, { rowMovies: row1Movies }),
-            React.createElement(Movies.MovieRow, { rowMovies: row2Movies }))));
-    }
-}
-class MainBody extends React.Component {
-    render() {
-        return (React.createElement("div", { id: "mainBody" },
-            React.createElement(MovieGrid, null),
-            React.createElement(SoloMovieDisplay, null)));
-    }
-}
-class SoloMovieDisplay extends React.Component {
-    constructor() {
-        super(...arguments);
-        this.state = { shown: false };
-    }
     observe(ob) {
         ob.observers.push(this);
     }
     notified(observable, event) {
         if (event == "movieChanged") {
-            this.setState({ shown: true });
+            this.setState({ showingChild: mainview.solo, last: this.state.showingChild });
         }
-        if (event === "movieUnset") {
-            this.setState({ shown: false });
+        if (event == "listChanged") {
+            this.movies = exports.movieList.getMovies();
+            this.setState({ showingChild: mainview.grid, last: this.state.showingChild });
         }
-    }
-    componentWillMount() {
-        this.observe(exports.movieList);
-    }
-    exit() {
-        console.log("exiting");
-        exports.movieList.setCurrMovie("");
+        if (event == "showFilters") {
+            this.setState({ showingChild: mainview.filters, last: this.state.showingChild });
+        }
     }
     render() {
-        return (React.createElement("div", { id: "soloMovieDisplay", className: this.state.shown ? "shown" : "hidden" },
-            React.createElement("div", { onClick: this.exit }, "sldkfjslkdfj")));
+        return (React.createElement("div", { id: "mainBody" },
+            React.createElement(MovieGrid, { item: { callBack: this.childCallback, show: this.state.showingChild == mainview.grid }, movies: this.movies }),
+            React.createElement(SoloDisplay_1.SoloMovieDisplay, { item: { callBack: this.childCallback, show: this.state.showingChild == mainview.solo }, movie: exports.movieList.getcurrMovie() }),
+            React.createElement(FilterPage, { item: { callBack: this.childCallback, show: this.state.showingChild == mainview.filters } })));
+    }
+}
+class FilterPage extends React.Component {
+    render() {
+        return (React.createElement("div", { id: "filterPage", onClick: () => { this.props.item.callBack(mainview.last); }, className: this.props.item.show ? "shown" : "hidden" }));
+    }
+}
+class MovieGrid extends React.Component {
+    constructor() {
+        super(...arguments);
+        this.mov = [];
+    }
+    render() {
+        let row1Movies = [];
+        let row2Movies = [];
+        if (this.props.movies && this.props.movies.length >= 10) {
+            row1Movies = this.props.movies.slice(0, movieCount);
+            row2Movies = this.props.movies.slice(movieCount, movieCount * 2);
+        }
+        return (React.createElement("div", { id: "movieGrid", className: this.props.item.show ? "shown" : "hidden" }, React.createElement(React.Fragment, null,
+            React.createElement(Movies.MovieRow, { rowMovies: row1Movies }),
+            React.createElement(Movies.MovieRow, { rowMovies: row2Movies }))));
     }
 }
 class MainPage extends React.Component {
