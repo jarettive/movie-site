@@ -38,9 +38,11 @@ exports.SecondHeader = SecondHeader;
 function getGenre(element) {
     element = (element.toLowerCase() === "musical") ? "Music" : element;
     element = (element.toLowerCase() === "sci-fi") ? "Science Fiction" : element;
-    const contentStr = "&language=en-US&sort_by=popularity.desc&include_adult=false&page=1&with_genres="
-        + Main.theMDBGenreMap[element];
-    axios_1.default.get(Main.theMDBURL + "discover/movie?" + Main.theMDBKey + contentStr).then((response) => {
+    axios_1.default.get("getGenre", {
+        params: {
+            genreID: Main.theMDBGenreMap[element]
+        }
+    }).then((response) => {
         Main.movieList.setMovies(response.data.results);
     });
 }

@@ -12386,9 +12386,6 @@ var Movies = __webpack_require__(/*! ./movieCell */ "./src/components/movieCell.
 var TopHeader_1 = __webpack_require__(/*! ./TopHeader */ "./src/components/TopHeader.tsx");
 var SecondHeader_1 = __webpack_require__(/*! ./SecondHeader */ "./src/components/SecondHeader.tsx");
 var SoloDisplay_1 = __webpack_require__(/*! ./SoloDisplay */ "./src/components/SoloDisplay.tsx");
-exports.theMDBKey = "api_key=29d987bf9cd230bfccd9b7ca74c6a3bc";
-exports.theMDBURL = "https://api.themoviedb.org/3/";
-exports.lang = "&language=en-US";
 exports.img300_450_url = "https://image.tmdb.org/t/p/w300_and_h450_bestv2";
 exports.img600_900_url = "https://image.tmdb.org/t/p/w600_and_h900_bestv2";
 exports.theMDBGenreMap = {};
@@ -12422,6 +12419,12 @@ var CurrMovieList = /** @class */ (function () {
             _this.currMovie = _this.movies.find(function (element) {
                 return element.id == movieID;
             });
+            if (!_this.currMovie.imdb_id) {
+                axios_1.default.get("getMovie", { params: { movieID: movieID } }).then(function (response) {
+                    _this.currMovie = response.data;
+                    _this.notifyObservers("movieChanged");
+                });
+            }
             _this.notifyObservers("movieChanged");
         };
         this.getMovies = function () {
@@ -12453,20 +12456,21 @@ var MainBody = /** @class */ (function (_super) {
     __extends(MainBody, _super);
     function MainBody() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.state = { showingChild: mainview.grid, last: mainview.grid };
+        _this.state = { showingChild: mainview.grid, last: mainview.last };
         _this.movies = [];
         _this.childCallback = function (child) {
             if (child == mainview.last) {
                 child = _this.state.last;
             }
-            _this.setState({ showingChild: child, last: _this.state.showingChild });
+            var last = (child == _this.state.showingChild) ? _this.state.last : _this.state.showingChild;
+            _this.setState({ showingChild: child, last: last });
         };
         return _this;
     }
     MainBody.prototype.componentWillMount = function () {
         this.observe(exports.movieList);
         this.observe(exports.mainBus);
-        axios_1.default.get(exports.theMDBURL + "genre/movie/list?" + exports.theMDBKey + exports.lang).then(function (response) {
+        axios_1.default.get("/genres").then(function (response) {
             ;
             response.data.genres.forEach(function (genre) {
                 exports.theMDBGenreMap[genre.name] = genre.id;
@@ -12477,16 +12481,19 @@ var MainBody = /** @class */ (function (_super) {
         ob.observers.push(this);
     };
     MainBody.prototype.notified = function (observable, event) {
+        var show = mainview.grid;
         if (event == "movieChanged") {
-            this.setState({ showingChild: mainview.solo, last: this.state.showingChild });
+            show = mainview.solo;
         }
         if (event == "listChanged") {
             this.movies = exports.movieList.getMovies();
-            this.setState({ showingChild: mainview.grid, last: this.state.showingChild });
+            show = mainview.grid;
         }
         if (event == "showFilters") {
-            this.setState({ showingChild: mainview.filters, last: this.state.showingChild });
+            show = mainview.filters;
         }
+        var last = (show == this.state.showingChild) ? this.state.last : this.state.showingChild;
+        this.setState({ showingChild: show, last: last });
     };
     MainBody.prototype.render = function () {
         return (React.createElement("div", { id: "mainBody" },
@@ -12533,8 +12540,7 @@ var MainPage = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     MainPage.prototype.componentWillMount = function () {
-        var contentStr = "&language=en-US&sort_by=popularity.desc&include_adult=false&page=1";
-        axios_1.default.get(exports.theMDBURL + "discover/movie?" + exports.theMDBKey + contentStr).then(function (response) {
+        axios_1.default.get("getPopular").then(function (response) {
             exports.movieList.setMovies(response.data.results);
         });
     };
@@ -12639,9 +12645,11 @@ exports.SecondHeader = SecondHeader;
 function getGenre(element) {
     element = (element.toLowerCase() === "musical") ? "Music" : element;
     element = (element.toLowerCase() === "sci-fi") ? "Science Fiction" : element;
-    var contentStr = "&language=en-US&sort_by=popularity.desc&include_adult=false&page=1&with_genres="
-        + Main.theMDBGenreMap[element];
-    axios_1.default.get(Main.theMDBURL + "discover/movie?" + Main.theMDBKey + contentStr).then(function (response) {
+    axios_1.default.get("getGenre", {
+        params: {
+            genreID: Main.theMDBGenreMap[element]
+        }
+    }).then(function (response) {
         Main.movieList.setMovies(response.data.results);
     });
 }
@@ -12800,7 +12808,6 @@ var SoloMovieDisplay = /** @class */ (function (_super) {
     }
     SoloMovieDisplay.prototype.render = function () {
         var _this = this;
-        console.dir(this.props.movie);
         return (React.createElement("div", { id: "soloMovieDisplay", className: this.props.item.show ? "shown" : "hidden" },
             React.createElement("i", { id: "soloClose", className: "far fa-times-circle", onClick: function () { _this.props.item.callBack(MainPage_1.mainview.last); } }),
             React.createElement("img", { src: this.props.movie && MainPage_1.img600_900_url + this.props.movie.poster_path })));

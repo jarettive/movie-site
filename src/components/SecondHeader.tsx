@@ -46,13 +46,18 @@ export class SecondHeader extends React.Component {
 function getGenre(element:string) {
     element = (element.toLowerCase() === "musical") ? "Music" : element;
     element = (element.toLowerCase() === "sci-fi") ? "Science Fiction" : element;
-    const contentStr = "&language=en-US&sort_by=popularity.desc&include_adult=false&page=1&with_genres=" 
-            + Main.theMDBGenreMap[element];
-    axios.get(Main.theMDBURL + "discover/movie?" + Main.theMDBKey + contentStr).then(
+   
+    axios.get("getGenre", 
+    {
+        params: {
+          genreID: Main.theMDBGenreMap[element]
+        }
+    }
+    ).then(
         (response) => {
             Main.movieList.setMovies(response.data.results);
         }
-    );
+    ); 
 }
 
 class MoreMenu extends React.Component {

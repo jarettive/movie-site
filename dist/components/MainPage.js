@@ -6,9 +6,6 @@ const Movies = require("./movieCell");
 const TopHeader_1 = require("./TopHeader");
 const SecondHeader_1 = require("./SecondHeader");
 const SoloDisplay_1 = require("./SoloDisplay");
-exports.theMDBKey = "api_key=29d987bf9cd230bfccd9b7ca74c6a3bc";
-exports.theMDBURL = "https://api.themoviedb.org/3/";
-exports.lang = "&language=en-US";
 exports.img300_450_url = "https://image.tmdb.org/t/p/w300_and_h450_bestv2";
 exports.img600_900_url = "https://image.tmdb.org/t/p/w600_and_h900_bestv2";
 exports.theMDBGenreMap = {};
@@ -39,6 +36,12 @@ class CurrMovieList {
             this.currMovie = this.movies.find((element) => {
                 return element.id == movieID;
             });
+            if (!this.currMovie.imdb_id) {
+                axios_1.default.get("getMovie", { params: { movieID: movieID } }).then((response) => {
+                    this.currMovie = response.data;
+                    this.notifyObservers("movieChanged");
+                });
+            }
             this.notifyObservers("movieChanged");
         };
         this.getMovies = () => {
@@ -67,19 +70,20 @@ var mainview;
 class MainBody extends React.Component {
     constructor() {
         super(...arguments);
-        this.state = { showingChild: mainview.grid, last: mainview.grid };
+        this.state = { showingChild: mainview.grid, last: mainview.last };
         this.movies = [];
         this.childCallback = (child) => {
             if (child == mainview.last) {
                 child = this.state.last;
             }
-            this.setState({ showingChild: child, last: this.state.showingChild });
+            var last = (child == this.state.showingChild) ? this.state.last : this.state.showingChild;
+            this.setState({ showingChild: child, last: last });
         };
     }
     componentWillMount() {
         this.observe(exports.movieList);
         this.observe(exports.mainBus);
-        axios_1.default.get(exports.theMDBURL + "genre/movie/list?" + exports.theMDBKey + exports.lang).then((response) => {
+        axios_1.default.get("/genres").then((response) => {
             ;
             response.data.genres.forEach((genre) => {
                 exports.theMDBGenreMap[genre.name] = genre.id;
@@ -90,16 +94,19 @@ class MainBody extends React.Component {
         ob.observers.push(this);
     }
     notified(observable, event) {
+        var show = mainview.grid;
         if (event == "movieChanged") {
-            this.setState({ showingChild: mainview.solo, last: this.state.showingChild });
+            show = mainview.solo;
         }
         if (event == "listChanged") {
             this.movies = exports.movieList.getMovies();
-            this.setState({ showingChild: mainview.grid, last: this.state.showingChild });
+            show = mainview.grid;
         }
         if (event == "showFilters") {
-            this.setState({ showingChild: mainview.filters, last: this.state.showingChild });
+            show = mainview.filters;
         }
+        var last = (show == this.state.showingChild) ? this.state.last : this.state.showingChild;
+        this.setState({ showingChild: show, last: last });
     }
     render() {
         return (React.createElement("div", { id: "mainBody" },
@@ -132,8 +139,7 @@ class MovieGrid extends React.Component {
 }
 class MainPage extends React.Component {
     componentWillMount() {
-        const contentStr = "&language=en-US&sort_by=popularity.desc&include_adult=false&page=1";
-        axios_1.default.get(exports.theMDBURL + "discover/movie?" + exports.theMDBKey + contentStr).then((response) => {
+        axios_1.default.get("getPopular").then((response) => {
             exports.movieList.setMovies(response.data.results);
         });
     }

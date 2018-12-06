@@ -4,7 +4,6 @@ import * as React from "react";
 
 export class SoloMovieDisplay extends React.Component<{item:subPageItem, movie:any}> {
     render() {
-        console.dir(this.props.movie);
         return (
             <div id="soloMovieDisplay" className={this.props.item.show ? "shown" : "hidden"}>
                 <i id="soloClose" className="far fa-times-circle" onClick={()=>{this.props.item.callBack(mainview.last)}}></i>

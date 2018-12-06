@@ -6,9 +6,6 @@ import {SecondHeader} from "./SecondHeader";
 import {observable, observer} from "./Utilities";
 import {SoloMovieDisplay} from "./SoloDisplay";
 
-export const theMDBKey = "api_key=29d987bf9cd230bfccd9b7ca74c6a3bc"
-export const theMDBURL = "https://api.themoviedb.org/3/";
-export const lang = "&language=en-US";
 export const img300_450_url = "https://image.tmdb.org/t/p/w300_and_h450_bestv2";
 export const img600_900_url = "https://image.tmdb.org/t/p/w600_and_h900_bestv2";
 
@@ -44,6 +41,14 @@ export class CurrMovieList implements observable {
         this.currMovie = this.movies.find((element:any) =>{
             return element.id == movieID;
         });
+        if (!this.currMovie.imdb_id) {
+            axios.get("getMovie", { params: {movieID:movieID}}).then(
+                (response) => {
+                   this.currMovie = response.data;
+                   this.notifyObservers("movieChanged");
+                }
+            )
+        }
         this.notifyObservers("movieChanged");
     }
     getcurrMovie() {
@@ -71,7 +76,7 @@ export interface subPageItem {show:boolean, callBack:Function};
 
 class MainBody extends React.Component implements observer {
     
-    readonly state = {showingChild:mainview.grid, last:mainview.grid};
+    readonly state = {showingChild:mainview.grid, last:mainview.last};
     
     movies: any[] = [];
 
@@ -79,13 +84,15 @@ class MainBody extends React.Component implements observer {
         if (child == mainview.last) {
             child = this.state.last;
         }
-        this.setState({showingChild:child, last:this.state.showingChild});
+        var last = (child == this.state.showingChild) ? this.state.last : this.state.showingChild;
+        this.setState({showingChild:child, last:last});
     }
     
     componentWillMount() {
         this.observe(movieList);
         this.observe(mainBus);
-        axios.get(theMDBURL + "genre/movie/list?" + theMDBKey + lang).then(
+
+        axios.get("/genres").then(
             (response) => {
                 interface genreElement {id:string, name:string};
                 response.data.genres.forEach((genre:genreElement) => {
@@ -99,16 +106,20 @@ class MainBody extends React.Component implements observer {
         ob.observers.push(this);
     }
     notified(observable:any, event:string) {
+        var show = mainview.grid;
         if (event == "movieChanged") {
-            this.setState({showingChild:mainview.solo, last:this.state.showingChild});
+            show = mainview.solo;
         }
         if (event == "listChanged") {
             this.movies = movieList.getMovies();
-            this.setState({showingChild:mainview.grid, last:this.state.showingChild});
+            show = mainview.grid;
         }
         if (event == "showFilters") {
-            this.setState({showingChild:mainview.filters, last:this.state.showingChild});
+            show = mainview.filters;
         }
+
+        var last = (show == this.state.showingChild) ? this.state.last : this.state.showingChild;
+        this.setState({showingChild:show, last:last});
     }
 
     render() {
@@ -157,11 +168,10 @@ class MovieGrid extends React.Component<{item:subPageItem, movies:any[]}> {
 
 export class MainPage extends React.Component {
     componentWillMount() {
-        const contentStr = "&language=en-US&sort_by=popularity.desc&include_adult=false&page=1"
-        axios.get(theMDBURL + "discover/movie?" + theMDBKey + contentStr).then(
-        (response) => {
-            movieList.setMovies(response.data.results);
-        }
+        axios.get("getPopular").then(
+            (response) => {
+                movieList.setMovies(response.data.results);
+            }
         );
     }
     render() {
