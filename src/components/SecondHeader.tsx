@@ -141,7 +141,7 @@ class PreferenceBelt extends React.Component {
                 this.nextQuestion();
             }
             this.changedBetween = false;
-          }, 10000);
+          }, 6500);
     }
 
     questionAnswered = () => {
