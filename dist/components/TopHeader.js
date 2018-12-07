@@ -30,7 +30,6 @@ class TopHeader extends React.Component {
                 React.createElement("div", { id: "titleText" }, "MUVIE"),
                 React.createElement("div", { id: "logoText" }, "find movies for you")),
             React.createElement("div", { className: "rightCentered" },
-                React.createElement(TopSignIn, null),
                 React.createElement("div", { id: "searchBar" },
                     this.state.showText &&
                         React.createElement("i", { className: "fas fa-search" }),

@@ -23,19 +23,14 @@
 		"question" : "Will you watch movies with strong violence?"
 	},
 	{
-		"name" : "female nudity",
-		"type" : "content",
-		"question" : "Will you watch movies with female nudity?"
-	},
-	{
 		"name" : "animal abuse",
 		"type" : "content",
 		"question" : "Will you watch movies with animal abuse?"
 	},
 	{
-		"name" : "male nudity",
+		"name" : "nudity",
 		"type" : "content",
-		"question" : "Will you watch movies with male nudity?"
+		"question" : "Will you watch movies with nudity?"
 	},
 	{
 		"name" : "drug abuse",

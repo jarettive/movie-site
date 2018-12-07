@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const React = require("react");
 const axios_1 = require("axios");
-const Movies = require("./movieCell");
+const MovieGrid_1 = require("./MovieGrid");
 const TopHeader_1 = require("./TopHeader");
 const SecondHeader_1 = require("./SecondHeader");
 const SoloDisplay_1 = require("./SoloDisplay");
@@ -11,7 +11,6 @@ exports.img600_900_url = "https://image.tmdb.org/t/p/w600_and_h900_bestv2";
 exports.theMDBGenreMap = {};
 exports.popularGenres = ["Action", "Drama", "Comedy", "Thriller", "Horror", "Romance", "More"];
 exports.otherGenres = ["Sci-fi", "Animation", "Musical", "Documentary"];
-const movieCount = 6;
 class MainBus {
     constructor() {
         this.observers = [];
@@ -110,7 +109,7 @@ class MainBody extends React.Component {
     }
     render() {
         return (React.createElement("div", { id: "mainBody" },
-            React.createElement(MovieGrid, { item: { callBack: this.childCallback, show: this.state.showingChild == mainview.grid }, movies: this.movies }),
+            React.createElement(MovieGrid_1.MovieGrid, { item: { callBack: this.childCallback, show: this.state.showingChild == mainview.grid }, movies: this.movies }),
             React.createElement(SoloDisplay_1.SoloMovieDisplay, { item: { callBack: this.childCallback, show: this.state.showingChild == mainview.solo }, movie: exports.movieList.getcurrMovie() }),
             React.createElement(FilterPage, { item: { callBack: this.childCallback, show: this.state.showingChild == mainview.filters } })));
     }
@@ -118,23 +117,6 @@ class MainBody extends React.Component {
 class FilterPage extends React.Component {
     render() {
         return (React.createElement("div", { id: "filterPage", onClick: () => { this.props.item.callBack(mainview.last); }, className: this.props.item.show ? "shown" : "hidden" }));
-    }
-}
-class MovieGrid extends React.Component {
-    constructor() {
-        super(...arguments);
-        this.mov = [];
-    }
-    render() {
-        let row1Movies = [];
-        let row2Movies = [];
-        if (this.props.movies && this.props.movies.length >= 10) {
-            row1Movies = this.props.movies.slice(0, movieCount);
-            row2Movies = this.props.movies.slice(movieCount, movieCount * 2);
-        }
-        return (React.createElement("div", { id: "movieGrid", className: this.props.item.show ? "shown" : "hidden" }, React.createElement(React.Fragment, null,
-            React.createElement(Movies.MovieRow, { rowMovies: row1Movies }),
-            React.createElement(Movies.MovieRow, { rowMovies: row2Movies }))));
     }
 }
 class MainPage extends React.Component {

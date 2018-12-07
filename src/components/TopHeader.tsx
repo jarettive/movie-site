@@ -30,11 +30,10 @@ export class TopHeader extends React.Component<any, any> {
                     <div id="logoText">find movies for you</div>
                 </div>
                 <div className="rightCentered">
-                    <TopSignIn/>
-                    <div id="searchBar">
+                    <div id="searchBar"> 
                         {this.state.showText && 
                             <i className="fas fa-search"/>
-                        }
+                        } 
                         <input type="text" 
                             placeholder={this.state.showText == true ?  "Search movies" : ""} 
                             onChange={unimplemented}

@@ -1,9 +1,37 @@
 import * as React from "react";
 import axios from "axios";
-import {movieList, CurrMovieList, img300_450_url} from "./MainPage";
+import {movieList, CurrMovieList, subPageItem,  img300_450_url} from "./MainPage";
 import {unimplemented} from "./Utilities";
 
 const rowSize = 5;
+
+const movieCount = 6;
+
+export class MovieGrid extends React.Component<{item:subPageItem, movies:any[]}> {
+    mov : number[] = [];
+
+    render() {
+        let row1Movies : any[] = [];
+        let row2Movies : any[] = [];
+        if (this.props.movies && this.props.movies.length >=10) {
+            row1Movies = this.props.movies.slice(0, movieCount);
+            row2Movies = this.props.movies.slice(movieCount, movieCount*2);
+        }
+        return (
+            <div id="movieGrid" className={this.props.item.show ? "shown" : "hidden"}>
+            {
+                <>
+                <MovieRow rowMovies={row1Movies}/>
+                <MovieRow rowMovies={row2Movies}/>
+                </>
+            }
+            <i className="goRight fas fa-caret-right"onClick={unimplemented}/>
+            <i className="goLeft fas fa-caret-left" onClick={unimplemented}/>
+            </div>
+        )
+       
+    }
+}
 
 export class MovieRow extends React.Component<{rowMovies:any[]}> {
     render() {

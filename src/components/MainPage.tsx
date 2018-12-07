@@ -1,6 +1,6 @@
 import * as React from "react";
 import axios from "axios";
-import * as Movies from "./movieCell";
+import {MovieGrid} from "./MovieGrid";
 import {TopHeader} from "./TopHeader";
 import {SecondHeader} from "./SecondHeader";
 import {observable, observer} from "./Utilities";
@@ -12,8 +12,6 @@ export const img600_900_url = "https://image.tmdb.org/t/p/w600_and_h900_bestv2";
 export const theMDBGenreMap:{[key: string]: string} = {}
 export const popularGenres : string[] = ["Action", "Drama", "Comedy", "Thriller", "Horror", "Romance", "More"];
 export const otherGenres : string[] = ["Sci-fi", "Animation", "Musical", "Documentary"];
-
-const movieCount = 6;
 
 class MainBus implements observable {
     observers: observer[] = [];
@@ -139,30 +137,6 @@ class FilterPage extends React.Component<{item:subPageItem}>{
             <div id="filterPage" onClick={()=>{this.props.item.callBack(mainview.last)}} className={this.props.item.show ? "shown" : "hidden"}>
             </div>
         )
-    }
-}
-
-class MovieGrid extends React.Component<{item:subPageItem, movies:any[]}> {
-    mov : number[] = [];
-
-    render() {
-        let row1Movies : any[] = [];
-        let row2Movies : any[] = [];
-        if (this.props.movies && this.props.movies.length >=10) {
-            row1Movies = this.props.movies.slice(0, movieCount);
-            row2Movies = this.props.movies.slice(movieCount, movieCount*2);
-        }
-        return (
-            <div id="movieGrid" className={this.props.item.show ? "shown" : "hidden"}>
-            {
-                <>
-                <Movies.MovieRow rowMovies={row1Movies}></Movies.MovieRow>
-                <Movies.MovieRow rowMovies={row2Movies}></Movies.MovieRow>
-                </>
-            }
-            </div>
-        )
-       
     }
 }
 

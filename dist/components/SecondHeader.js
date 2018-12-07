@@ -149,4 +149,5 @@ class PreferenceQuestion extends React.Component {
                     React.createElement("span", null, "No")))));
     }
 }
+exports.PreferenceQuestion = PreferenceQuestion;
 //# sourceMappingURL=SecondHeader.js.map

@@ -12366,82 +12366,63 @@ return jQuery;
 
 "use strict";
 
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(/*! react */ "react");
-var axios_1 = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
-var Movies = __webpack_require__(/*! ./movieCell */ "./src/components/movieCell.tsx");
-var TopHeader_1 = __webpack_require__(/*! ./TopHeader */ "./src/components/TopHeader.tsx");
-var SecondHeader_1 = __webpack_require__(/*! ./SecondHeader */ "./src/components/SecondHeader.tsx");
-var SoloDisplay_1 = __webpack_require__(/*! ./SoloDisplay */ "./src/components/SoloDisplay.tsx");
+const React = __webpack_require__(/*! react */ "react");
+const axios_1 = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+const MovieGrid_1 = __webpack_require__(/*! ./MovieGrid */ "./src/components/MovieGrid.tsx");
+const TopHeader_1 = __webpack_require__(/*! ./TopHeader */ "./src/components/TopHeader.tsx");
+const SecondHeader_1 = __webpack_require__(/*! ./SecondHeader */ "./src/components/SecondHeader.tsx");
+const SoloDisplay_1 = __webpack_require__(/*! ./SoloDisplay */ "./src/components/SoloDisplay.tsx");
 exports.img300_450_url = "https://image.tmdb.org/t/p/w300_and_h450_bestv2";
 exports.img600_900_url = "https://image.tmdb.org/t/p/w600_and_h900_bestv2";
 exports.theMDBGenreMap = {};
 exports.popularGenres = ["Action", "Drama", "Comedy", "Thriller", "Horror", "Romance", "More"];
 exports.otherGenres = ["Sci-fi", "Animation", "Musical", "Documentary"];
-var movieCount = 6;
-var MainBus = /** @class */ (function () {
-    function MainBus() {
-        var _this = this;
+class MainBus {
+    constructor() {
         this.observers = [];
-        this.notifyObservers = function (event) {
-            _this.observers.forEach(function (element) {
-                element.notified(_this, event);
+        this.notifyObservers = (event) => {
+            this.observers.forEach(element => {
+                element.notified(this, event);
             });
         };
     }
-    return MainBus;
-}());
+}
 exports.mainBus = new MainBus();
-var CurrMovieList = /** @class */ (function () {
-    function CurrMovieList() {
-        var _this = this;
+class CurrMovieList {
+    constructor() {
         this.name = "CurrMovieList";
         this.observers = [];
         this.movies = [];
-        this.setMovies = function (movies) {
-            _this.movies = movies;
-            _this.notifyObservers("listChanged");
+        this.setMovies = (movies) => {
+            this.movies = movies;
+            this.notifyObservers("listChanged");
         };
-        this.setCurrMovie = function (movieID) {
-            _this.currMovie = _this.movies.find(function (element) {
+        this.setCurrMovie = (movieID) => {
+            this.currMovie = this.movies.find((element) => {
                 return element.id == movieID;
             });
-            if (!_this.currMovie.imdb_id) {
-                axios_1.default.get("getMovie", { params: { movieID: movieID } }).then(function (response) {
-                    _this.currMovie = response.data;
-                    _this.notifyObservers("movieChanged");
+            if (!this.currMovie.imdb_id) {
+                axios_1.default.get("getMovie", { params: { movieID: movieID } }).then((response) => {
+                    this.currMovie = response.data;
+                    this.notifyObservers("movieChanged");
                 });
             }
-            _this.notifyObservers("movieChanged");
+            this.notifyObservers("movieChanged");
         };
-        this.getMovies = function () {
-            return _this.movies;
+        this.getMovies = () => {
+            return this.movies;
         };
     }
-    CurrMovieList.prototype.getcurrMovie = function () {
+    getcurrMovie() {
         return this.currMovie;
-    };
-    CurrMovieList.prototype.notifyObservers = function (event) {
-        var _this = this;
-        this.observers.forEach(function (element) {
-            element.notified(_this, event);
+    }
+    notifyObservers(event) {
+        this.observers.forEach(element => {
+            element.notified(this, event);
         });
-    };
-    return CurrMovieList;
-}());
+    }
+}
 exports.CurrMovieList = CurrMovieList;
 exports.movieList = new CurrMovieList();
 var mainview;
@@ -12452,35 +12433,33 @@ var mainview;
     mainview[mainview["last"] = 3] = "last";
 })(mainview = exports.mainview || (exports.mainview = {}));
 ;
-var MainBody = /** @class */ (function (_super) {
-    __extends(MainBody, _super);
-    function MainBody() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.state = { showingChild: mainview.grid, last: mainview.last };
-        _this.movies = [];
-        _this.childCallback = function (child) {
+class MainBody extends React.Component {
+    constructor() {
+        super(...arguments);
+        this.state = { showingChild: mainview.grid, last: mainview.last };
+        this.movies = [];
+        this.childCallback = (child) => {
             if (child == mainview.last) {
-                child = _this.state.last;
+                child = this.state.last;
             }
-            var last = (child == _this.state.showingChild) ? _this.state.last : _this.state.showingChild;
-            _this.setState({ showingChild: child, last: last });
+            var last = (child == this.state.showingChild) ? this.state.last : this.state.showingChild;
+            this.setState({ showingChild: child, last: last });
         };
-        return _this;
     }
-    MainBody.prototype.componentWillMount = function () {
+    componentWillMount() {
         this.observe(exports.movieList);
         this.observe(exports.mainBus);
-        axios_1.default.get("/genres").then(function (response) {
+        axios_1.default.get("/genres").then((response) => {
             ;
-            response.data.genres.forEach(function (genre) {
+            response.data.genres.forEach((genre) => {
                 exports.theMDBGenreMap[genre.name] = genre.id;
             });
         });
-    };
-    MainBody.prototype.observe = function (ob) {
+    }
+    observe(ob) {
         ob.observers.push(this);
-    };
-    MainBody.prototype.notified = function (observable, event) {
+    }
+    notified(observable, event) {
         var show = mainview.grid;
         if (event == "movieChanged") {
             show = mainview.solo;
@@ -12494,84 +12473,118 @@ var MainBody = /** @class */ (function (_super) {
         }
         var last = (show == this.state.showingChild) ? this.state.last : this.state.showingChild;
         this.setState({ showingChild: show, last: last });
-    };
-    MainBody.prototype.render = function () {
+    }
+    render() {
         return (React.createElement("div", { id: "mainBody" },
-            React.createElement(MovieGrid, { item: { callBack: this.childCallback, show: this.state.showingChild == mainview.grid }, movies: this.movies }),
+            React.createElement(MovieGrid_1.MovieGrid, { item: { callBack: this.childCallback, show: this.state.showingChild == mainview.grid }, movies: this.movies }),
             React.createElement(SoloDisplay_1.SoloMovieDisplay, { item: { callBack: this.childCallback, show: this.state.showingChild == mainview.solo }, movie: exports.movieList.getcurrMovie() }),
             React.createElement(FilterPage, { item: { callBack: this.childCallback, show: this.state.showingChild == mainview.filters } })));
-    };
-    return MainBody;
-}(React.Component));
-var FilterPage = /** @class */ (function (_super) {
-    __extends(FilterPage, _super);
-    function FilterPage() {
-        return _super !== null && _super.apply(this, arguments) || this;
     }
-    FilterPage.prototype.render = function () {
-        var _this = this;
-        return (React.createElement("div", { id: "filterPage", onClick: function () { _this.props.item.callBack(mainview.last); }, className: this.props.item.show ? "shown" : "hidden" }));
-    };
-    return FilterPage;
-}(React.Component));
-var MovieGrid = /** @class */ (function (_super) {
-    __extends(MovieGrid, _super);
-    function MovieGrid() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.mov = [];
-        return _this;
+}
+class FilterPage extends React.Component {
+    render() {
+        return (React.createElement("div", { id: "filterPage", onClick: () => { this.props.item.callBack(mainview.last); }, className: this.props.item.show ? "shown" : "hidden" }));
     }
-    MovieGrid.prototype.render = function () {
-        var row1Movies = [];
-        var row2Movies = [];
-        if (this.props.movies && this.props.movies.length >= 10) {
-            row1Movies = this.props.movies.slice(0, movieCount);
-            row2Movies = this.props.movies.slice(movieCount, movieCount * 2);
-        }
-        return (React.createElement("div", { id: "movieGrid", className: this.props.item.show ? "shown" : "hidden" }, React.createElement(React.Fragment, null,
-            React.createElement(Movies.MovieRow, { rowMovies: row1Movies }),
-            React.createElement(Movies.MovieRow, { rowMovies: row2Movies }))));
-    };
-    return MovieGrid;
-}(React.Component));
-var MainPage = /** @class */ (function (_super) {
-    __extends(MainPage, _super);
-    function MainPage() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    MainPage.prototype.componentWillMount = function () {
-        axios_1.default.get("getPopular").then(function (response) {
+}
+class MainPage extends React.Component {
+    componentWillMount() {
+        axios_1.default.get("getPopular").then((response) => {
             exports.movieList.setMovies(response.data.results);
         });
-    };
-    MainPage.prototype.render = function () {
+    }
+    render() {
         return (React.createElement(React.Fragment, null,
             React.createElement(TopHeader_1.TopHeader, null),
             React.createElement(SecondHeader_1.SecondHeader, null),
             React.createElement(MainBody, null)));
-    };
-    return MainPage;
-}(React.Component));
+    }
+}
 exports.MainPage = MainPage;
-var SigninPopup = /** @class */ (function (_super) {
-    __extends(SigninPopup, _super);
-    function SigninPopup() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.closePopup = function () {
-            _this.props.closePopup();
+class SigninPopup extends React.Component {
+    constructor() {
+        super(...arguments);
+        this.closePopup = () => {
+            this.props.closePopup();
         };
-        _this.handleInner = function (event) {
+        this.handleInner = (event) => {
             event.stopPropagation();
         };
-        return _this;
     }
-    SigninPopup.prototype.render = function () {
+    render() {
         return (React.createElement("div", { id: "signinPopup", onClick: this.closePopup, className: "popup" },
             React.createElement("div", { className: "popup_inner", onClick: this.handleInner })));
-    };
-    return SigninPopup;
-}(React.Component));
+    }
+}
 exports.SigninPopup = SigninPopup;
+
+
+/***/ }),
+
+/***/ "./src/components/MovieGrid.tsx":
+/*!**************************************!*\
+  !*** ./src/components/MovieGrid.tsx ***!
+  \**************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const React = __webpack_require__(/*! react */ "react");
+const MainPage_1 = __webpack_require__(/*! ./MainPage */ "./src/components/MainPage.tsx");
+const Utilities_1 = __webpack_require__(/*! ./Utilities */ "./src/components/Utilities.ts");
+const rowSize = 5;
+const movieCount = 6;
+class MovieGrid extends React.Component {
+    constructor() {
+        super(...arguments);
+        this.mov = [];
+    }
+    render() {
+        let row1Movies = [];
+        let row2Movies = [];
+        if (this.props.movies && this.props.movies.length >= 10) {
+            row1Movies = this.props.movies.slice(0, movieCount);
+            row2Movies = this.props.movies.slice(movieCount, movieCount * 2);
+        }
+        return (React.createElement("div", { id: "movieGrid", className: this.props.item.show ? "shown" : "hidden" },
+            React.createElement(React.Fragment, null,
+                React.createElement(MovieRow, { rowMovies: row1Movies }),
+                React.createElement(MovieRow, { rowMovies: row2Movies })),
+            React.createElement("i", { className: "goRight fas fa-caret-right", onClick: Utilities_1.unimplemented }),
+            React.createElement("i", { className: "goLeft fas fa-caret-left", onClick: Utilities_1.unimplemented })));
+    }
+}
+exports.MovieGrid = MovieGrid;
+class MovieRow extends React.Component {
+    render() {
+        let cells = [];
+        if (this.props.rowMovies.length > 0) {
+            cells = this.props.rowMovies;
+            cells.forEach((cell) => {
+                cell.img_path = MainPage_1.img300_450_url + cell.poster_path;
+            });
+        }
+        return React.createElement("div", { className: "movieRow" }, cells.map((element) => {
+            return React.createElement(MovieCell, { mov: element });
+        }));
+    }
+}
+exports.MovieRow = MovieRow;
+class MovieCell extends React.Component {
+    constructor() {
+        super(...arguments);
+        this.viewMovie = () => {
+            MainPage_1.movieList.setCurrMovie(this.props.mov.id);
+        };
+    }
+    render() {
+        return (React.createElement("div", { className: "movieCell" },
+            React.createElement("img", { onClick: this.viewMovie, src: this.props.mov.img_path }),
+            React.createElement("div", { className: "movieTitle" }, this.props.mov.title)));
+    }
+}
+exports.MovieCell = MovieCell;
 
 
 /***/ }),
@@ -12585,62 +12598,41 @@ exports.SigninPopup = SigninPopup;
 
 "use strict";
 
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(/*! react */ "react");
-var axios_1 = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
-var Main = __webpack_require__(/*! ./MainPage */ "./src/components/MainPage.tsx");
-var Util = __webpack_require__(/*! ./Utilities */ "./src/components/Utilities.ts");
-var $ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
+const React = __webpack_require__(/*! react */ "react");
+const axios_1 = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+const Main = __webpack_require__(/*! ./MainPage */ "./src/components/MainPage.tsx");
+const Util = __webpack_require__(/*! ./Utilities */ "./src/components/Utilities.ts");
+const $ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
 ;
-var filters = [];
-var PrefSignIn = /** @class */ (function (_super) {
-    __extends(PrefSignIn, _super);
-    function PrefSignIn() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.state = { showPopup: false };
-        _this.showFilters = function () {
+let filters = [];
+class PrefSignIn extends React.Component {
+    constructor() {
+        super(...arguments);
+        this.state = { showPopup: false };
+        this.showFilters = () => {
             Main.mainBus.notifyObservers("showFilters");
         };
-        return _this;
     }
-    PrefSignIn.prototype.render = function () {
+    render() {
         return React.createElement("div", { id: "preferenceSignIn" },
             React.createElement("div", { onClick: this.showFilters },
                 React.createElement("u", null, "View all filters")));
-    };
-    return PrefSignIn;
-}(React.Component));
-var SecondHeader = /** @class */ (function (_super) {
-    __extends(SecondHeader, _super);
-    function SecondHeader() {
-        return _super !== null && _super.apply(this, arguments) || this;
     }
-    SecondHeader.prototype.render = function () {
+}
+class SecondHeader extends React.Component {
+    render() {
         return (React.createElement("div", { id: "secondHeader" },
             React.createElement("div", { id: "preferenceHeader" },
                 React.createElement("div", { id: "questionsBanner" },
                     React.createElement(PreferenceBelt, null)),
                 React.createElement(PrefSignIn, null)),
             React.createElement("div", { id: "genreHeader" },
-                React.createElement("div", { id: "genreHeaderInner" }, Main.popularGenres.map(function (element) {
+                React.createElement("div", { id: "genreHeaderInner" }, Main.popularGenres.map(element => {
                     return React.createElement(GenreTab, { key: Main.theMDBGenreMap[element], val: element });
                 })))));
-    };
-    return SecondHeader;
-}(React.Component));
+    }
+}
 exports.SecondHeader = SecondHeader;
 function getGenre(element) {
     element = (element.toLowerCase() === "musical") ? "Music" : element;
@@ -12649,117 +12641,102 @@ function getGenre(element) {
         params: {
             genreID: Main.theMDBGenreMap[element]
         }
-    }).then(function (response) {
+    }).then((response) => {
         Main.movieList.setMovies(response.data.results);
     });
 }
-var MoreMenu = /** @class */ (function (_super) {
-    __extends(MoreMenu, _super);
-    function MoreMenu() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    MoreMenu.prototype.render = function () {
-        return (React.createElement("div", { className: "genreMenu" }, Main.otherGenres.map(function (element) {
-            return (React.createElement("div", { onClick: function () { return getGenre(element); } }, element));
+class MoreMenu extends React.Component {
+    render() {
+        return (React.createElement("div", { className: "genreMenu" }, Main.otherGenres.map((element) => {
+            return (React.createElement("div", { onClick: () => getGenre(element) }, element));
         })));
-    };
-    return MoreMenu;
-}(React.Component));
-var GenreTab = /** @class */ (function (_super) {
-    __extends(GenreTab, _super);
-    function GenreTab() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.state = { showPopupMenu: false };
-        _this.click = function () {
-            if (_this.props.val !== "More") {
-                getGenre(_this.props.val);
-            }
-        };
-        _this.mouseEnter = function () {
-            if (_this.props.val == "More") {
-                _this.setState({ showPopupMenu: true });
-            }
-        };
-        _this.mouseLeave = function () {
-            if (_this.props.val == "More") {
-                _this.setState({ showPopupMenu: false });
-            }
-        };
-        return _this;
     }
-    GenreTab.prototype.render = function () {
+}
+class GenreTab extends React.Component {
+    constructor() {
+        super(...arguments);
+        this.state = { showPopupMenu: false };
+        this.click = () => {
+            if (this.props.val !== "More") {
+                getGenre(this.props.val);
+            }
+        };
+        this.mouseEnter = () => {
+            if (this.props.val == "More") {
+                this.setState({ showPopupMenu: true });
+            }
+        };
+        this.mouseLeave = () => {
+            if (this.props.val == "More") {
+                this.setState({ showPopupMenu: false });
+            }
+        };
+    }
+    render() {
         return (React.createElement("a", { className: "genreTab", onClick: this.click.bind(this), onMouseEnter: this.mouseEnter.bind(this), onMouseLeave: this.mouseLeave },
             React.createElement("div", null, this.props.val),
             this.state.showPopupMenu && React.createElement(MoreMenu, null)));
-    };
-    return GenreTab;
-}(React.Component));
-var PreferenceBelt = /** @class */ (function (_super) {
-    __extends(PreferenceBelt, _super);
-    function PreferenceBelt() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.state = { fltrs: filters, leftMarg: 0 };
-        _this.index = 0;
-        _this.changedBetween = false;
-        _this.nextQuestion = function () {
+    }
+}
+class PreferenceBelt extends React.Component {
+    constructor() {
+        super(...arguments);
+        this.state = { fltrs: filters, leftMarg: 0 };
+        this.index = 0;
+        this.changedBetween = false;
+        this.nextQuestion = () => {
             var rect = $(".prefQuestion")[0].getBoundingClientRect();
-            _this.index += 1;
+            this.index += 1;
             var animationTime = 600;
-            if (_this.index >= _this.state.fltrs.length) {
-                _this.index = 0;
+            if (this.index >= this.state.fltrs.length) {
+                this.index = 0;
                 animationTime = 1;
             }
-            var top = -rect.height * _this.index;
+            var top = -rect.height * this.index;
             $("#prefBelt").animate({ marginTop: top + "px" }, animationTime);
         };
-        _this.convey = function () {
-            var el = document.getElementById("prefBelt");
-            setInterval(function () {
-                if (!_this.changedBetween) {
-                    _this.nextQuestion();
+        this.convey = () => {
+            const el = document.getElementById("prefBelt");
+            setInterval(() => {
+                if (!this.changedBetween) {
+                    this.nextQuestion();
                 }
-                _this.changedBetween = false;
+                this.changedBetween = false;
             }, 10000);
         };
-        _this.questionAnswered = function () {
-            _this.nextQuestion();
-            _this.changedBetween = true;
+        this.questionAnswered = () => {
+            this.nextQuestion();
+            this.changedBetween = true;
         };
-        return _this;
     }
-    PreferenceBelt.prototype.componentWillMount = function () {
-        var _this = this;
-        axios_1.default.get("\pref-filters.json").then(function (response) {
+    componentWillMount() {
+        axios_1.default.get("\pref-filters.json").then((response) => {
             filters = response.data;
             Util.shuffleArray(filters);
-            _this.setState({ fltrs: filters });
-            _this.convey();
+            this.setState({ fltrs: filters });
+            this.convey();
         });
-    };
-    PreferenceBelt.prototype.render = function () {
-        var _this = this;
-        return (React.createElement("div", { id: "prefBelt", style: { marginTop: 0 } }, this.state.fltrs.map(function (element) {
-            return React.createElement(PreferenceQuestion, { key: element.name, questionAnswered: _this.questionAnswered, filt: element });
-        })));
-    };
-    return PreferenceBelt;
-}(React.Component));
-var PreferenceQuestion = /** @class */ (function (_super) {
-    __extends(PreferenceQuestion, _super);
-    function PreferenceQuestion(props) {
-        var _this = _super.call(this, props) || this;
-        _this.state = { positive: true };
-        _this.positive = function () {
-            _this.setState({ positive: true });
-            _this.props.questionAnswered();
-        };
-        _this.negative = function () {
-            _this.setState({ positive: false });
-            _this.props.questionAnswered();
-        };
-        return _this;
     }
-    PreferenceQuestion.prototype.render = function () {
+    render() {
+        return (React.createElement("div", { id: "prefBelt", style: { marginTop: 0 } }, this.state.fltrs.map((element) => {
+            return React.createElement(PreferenceQuestion, { key: element.name, questionAnswered: this.questionAnswered, filt: element });
+        })));
+    }
+}
+class PreferenceQuestion extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = { positive: true };
+        this.positive = () => {
+            this.setState({ positive: true });
+            this.props.questionAnswered();
+        };
+        this.negative = () => {
+            this.setState({ positive: false });
+            this.props.questionAnswered();
+        };
+    }
+    render() {
         return (React.createElement("div", { className: "prefQuestion" },
             this.props.filt.question,
             React.createElement("div", { className: "questionOptions" },
@@ -12769,9 +12746,9 @@ var PreferenceQuestion = /** @class */ (function (_super) {
                 React.createElement("span", { className: "negative", onClick: this.negative },
                     !this.state.positive ? React.createElement("i", { className: "far fa-check-square" }) : React.createElement("i", { className: "far fa-square" }),
                     React.createElement("span", null, "No")))));
-    };
-    return PreferenceQuestion;
-}(React.Component));
+    }
+}
+exports.PreferenceQuestion = PreferenceQuestion;
 
 
 /***/ }),
@@ -12785,35 +12762,33 @@ var PreferenceQuestion = /** @class */ (function (_super) {
 
 "use strict";
 
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
-var MainPage_1 = __webpack_require__(/*! ./MainPage */ "./src/components/MainPage.tsx");
-var React = __webpack_require__(/*! react */ "react");
-var SoloMovieDisplay = /** @class */ (function (_super) {
-    __extends(SoloMovieDisplay, _super);
-    function SoloMovieDisplay() {
-        return _super !== null && _super.apply(this, arguments) || this;
+const MainPage_1 = __webpack_require__(/*! ./MainPage */ "./src/components/MainPage.tsx");
+const React = __webpack_require__(/*! react */ "react");
+class SoloMovieDisplay extends React.Component {
+    constructor(props) {
+        super(props);
+        this.componentDidUpdate = () => {
+            if (this.props.item.show) {
+                this.boxRef.current.scrollIntoView({ block: "start", behavior: "smooth" });
+            }
+        };
+        this.boxRef = React.createRef();
     }
-    SoloMovieDisplay.prototype.render = function () {
-        var _this = this;
-        return (React.createElement("div", { id: "soloMovieDisplay", className: this.props.item.show ? "shown" : "hidden" },
-            React.createElement("i", { id: "soloClose", className: "far fa-times-circle", onClick: function () { _this.props.item.callBack(MainPage_1.mainview.last); } }),
-            React.createElement("img", { src: this.props.movie && MainPage_1.img600_900_url + this.props.movie.poster_path })));
-    };
-    return SoloMovieDisplay;
-}(React.Component));
+    render() {
+        var time = (this.props.movie) ? this.props.movie.runtime : 0;
+        return (React.createElement("div", { id: "soloMovieDisplay", className: this.props.item.show ? "shown" : "hidden", ref: this.boxRef },
+            React.createElement("i", { id: "soloClose", className: "far fa-times-circle", onClick: () => { this.props.item.callBack(MainPage_1.mainview.last); } }),
+            React.createElement("div", { className: "left" },
+                React.createElement("img", { src: this.props.movie && MainPage_1.img600_900_url + this.props.movie.poster_path }),
+                React.createElement("div", { id: "tagLine" })),
+            React.createElement("div", { className: "right" }, this.props.movie &&
+                React.createElement(React.Fragment, null,
+                    React.createElement("div", { id: "soloTitle" }, this.props.movie.title),
+                    React.createElement("div", { id: "overview" }, this.props.movie.overview),
+                    React.createElement("div", { id: "runtime" }, Math.floor(time / 60) + " hours " + time % 60 + " minutes")))));
+    }
+}
 exports.SoloMovieDisplay = SoloMovieDisplay;
 
 
@@ -12828,64 +12803,43 @@ exports.SoloMovieDisplay = SoloMovieDisplay;
 
 "use strict";
 
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(/*! react */ "react");
-var MainPage_1 = __webpack_require__(/*! ./MainPage */ "./src/components/MainPage.tsx");
-var Utilities_1 = __webpack_require__(/*! ./Utilities */ "./src/components/Utilities.ts");
-var TopSignIn = /** @class */ (function (_super) {
-    __extends(TopSignIn, _super);
-    function TopSignIn() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.state = { showPopup: false };
-        _this.togglePopup = function () {
+const React = __webpack_require__(/*! react */ "react");
+const MainPage_1 = __webpack_require__(/*! ./MainPage */ "./src/components/MainPage.tsx");
+const Utilities_1 = __webpack_require__(/*! ./Utilities */ "./src/components/Utilities.ts");
+class TopSignIn extends React.Component {
+    constructor() {
+        super(...arguments);
+        this.state = { showPopup: false };
+        this.togglePopup = () => {
             // this.setState({showPopup:!this.state.showPopup});
             Utilities_1.unimplemented();
         };
-        return _this;
     }
-    TopSignIn.prototype.render = function () {
+    render() {
         return (React.createElement("div", { id: "topSignIn" },
             React.createElement("div", { onClick: this.togglePopup }, "Sign in"),
             this.state.showPopup && React.createElement(MainPage_1.SigninPopup, { closePopup: this.togglePopup.bind(this) })));
-    };
-    return TopSignIn;
-}(React.Component));
-///search/multi?language=en-US&query=zoo
-var TopHeader = /** @class */ (function (_super) {
-    __extends(TopHeader, _super);
-    function TopHeader() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.state = { showText: true };
-        return _this;
     }
-    TopHeader.prototype.render = function () {
-        var _this = this;
+}
+///search/multi?language=en-US&query=zoo
+class TopHeader extends React.Component {
+    constructor() {
+        super(...arguments);
+        this.state = { showText: true };
+    }
+    render() {
         return (React.createElement("div", { id: "topHeader" },
             React.createElement("div", { className: "vertCentered" },
                 React.createElement("div", { id: "titleText" }, "MUVIE"),
                 React.createElement("div", { id: "logoText" }, "find movies for you")),
             React.createElement("div", { className: "rightCentered" },
-                React.createElement(TopSignIn, null),
                 React.createElement("div", { id: "searchBar" },
                     this.state.showText &&
                         React.createElement("i", { className: "fas fa-search" }),
-                    React.createElement("input", { type: "text", placeholder: this.state.showText == true ? "Search movies" : "", onChange: Utilities_1.unimplemented, onFocus: function (inp) { _this.setState({ showText: false }); }, onBlur: function (inp) { _this.setState({ showText: true }); } })))));
-    };
-    return TopHeader;
-}(React.Component));
+                    React.createElement("input", { type: "text", placeholder: this.state.showText == true ? "Search movies" : "", onChange: Utilities_1.unimplemented, onFocus: (inp) => { this.setState({ showText: false }); }, onBlur: (inp) => { this.setState({ showText: true }); } })))));
+    }
+}
 exports.TopHeader = TopHeader;
 
 
@@ -12919,73 +12873,6 @@ exports.unimplemented = unimplemented;
 
 /***/ }),
 
-/***/ "./src/components/movieCell.tsx":
-/*!**************************************!*\
-  !*** ./src/components/movieCell.tsx ***!
-  \**************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(/*! react */ "react");
-var MainPage_1 = __webpack_require__(/*! ./MainPage */ "./src/components/MainPage.tsx");
-var rowSize = 5;
-var MovieRow = /** @class */ (function (_super) {
-    __extends(MovieRow, _super);
-    function MovieRow() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    MovieRow.prototype.render = function () {
-        var cells = [];
-        if (this.props.rowMovies.length > 0) {
-            cells = this.props.rowMovies;
-            cells.forEach(function (cell) {
-                cell.img_path = MainPage_1.img300_450_url + cell.poster_path;
-            });
-        }
-        return React.createElement("div", { className: "movieRow" }, cells.map(function (element) {
-            return React.createElement(MovieCell, { mov: element });
-        }));
-    };
-    return MovieRow;
-}(React.Component));
-exports.MovieRow = MovieRow;
-var MovieCell = /** @class */ (function (_super) {
-    __extends(MovieCell, _super);
-    function MovieCell() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.viewMovie = function () {
-            MainPage_1.movieList.setCurrMovie(_this.props.mov.id);
-        };
-        return _this;
-    }
-    MovieCell.prototype.render = function () {
-        return (React.createElement("div", { className: "movieCell" },
-            React.createElement("img", { onClick: this.viewMovie, src: this.props.mov.img_path }),
-            React.createElement("div", { className: "movieTitle" }, this.props.mov.title)));
-    };
-    return MovieCell;
-}(React.Component));
-exports.MovieCell = MovieCell;
-
-
-/***/ }),
-
 /***/ "./src/index.tsx":
 /*!***********************!*\
   !*** ./src/index.tsx ***!
@@ -12996,9 +12883,9 @@ exports.MovieCell = MovieCell;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(/*! react */ "react");
-var ReactDOM = __webpack_require__(/*! react-dom */ "react-dom");
-var MainPage_1 = __webpack_require__(/*! ./components/MainPage */ "./src/components/MainPage.tsx");
+const React = __webpack_require__(/*! react */ "react");
+const ReactDOM = __webpack_require__(/*! react-dom */ "react-dom");
+const MainPage_1 = __webpack_require__(/*! ./components/MainPage */ "./src/components/MainPage.tsx");
 ReactDOM.render(React.createElement(MainPage_1.MainPage, null), document.getElementById("main"));
 
 

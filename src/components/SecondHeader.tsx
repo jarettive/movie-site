@@ -162,7 +162,7 @@ class PreferenceBelt extends React.Component {
     }
 }
 
-class PreferenceQuestion extends React.Component<{filt:filter, questionAnswered:Function}> {
+export class PreferenceQuestion extends React.Component<{filt:filter, questionAnswered:Function}> {
     readonly state = {positive:true};
 
     constructor(props:any) {
