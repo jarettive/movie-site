@@ -8,7 +8,7 @@ $backgroundCol3 : #6d5982;
 
 $headerFont : -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 
-$moviesPerRow: 6;
+$moviesPerRow: 7;
 
 $green1 : rgb(2, 201, 92);
 
@@ -57,7 +57,7 @@ body, #main {
     font-weight: bold;
     font-kerning: 20px;
     color:white;
-    height: 14%;
+    height: 12%;
     display: inline-block;
     > * {
         display: inline-block;
@@ -132,7 +132,7 @@ body, #main {
     background-image: linear-gradient(to right, blue, rgb(2, 178, 201),  $green1);
     
     #preferenceHeader {
-        height: 62.5%;
+        height: 68%;
         
         #questionsBanner {
             text-align: center;
@@ -184,7 +184,7 @@ body, #main {
     }
     
     #genreHeader {
-        height: 37.5%;
+        height: 32%;
         background-color: #2b2b2b33;
       
         #genreHeaderInner {
@@ -196,7 +196,12 @@ body, #main {
             display: inline-block;
             color: white;
             height: 100%;
-            margin: 0 3.5vw;
+            padding: 0 10px;
+            margin: 0 2.8vw;
+            &.chosen {
+                background: #2b2b2b33;
+                border-radius: 8px;
+            }
             position: relative;
             > div:first-child {
                 @include vertical-align()
@@ -212,7 +217,8 @@ body, #main {
         border-bottom-left-radius: 4px;//lkj
         border-bottom-right-radius: 4px;
         top: 100%;
-        right: -65px;    
+        left: 50%;
+        transform: translateX(-50%);    
         z-index: 5;
         text-shadow: none;
         > div {
@@ -233,12 +239,23 @@ body, #main {
     }
     background-color: $backgroundCol1;
     width: 100%;
-    height: 96%;
+    height: 82%;
     position: relative;
     #movieGrid {
         position: absolute;
         height: 100%;
         width: 100%;
+        overflow: hidden;
+
+        #moviePages {
+            white-space: nowrap;
+            position: relative;
+        }
+        .moviePage {
+            display: inline-block;
+            vertical-align: top;
+            width: 100%;
+        }
         i {
             position: absolute;
             top:50%;
@@ -248,10 +265,10 @@ body, #main {
             transform: translateY(-50%);
         }
         .goRight {
-            right: 1.7%;
+            right: 1.3%;
         }
         .goLeft {
-            left: 1.7%;
+            left: 1.3%;
         }
     }
 
@@ -342,7 +359,7 @@ body, #main {
         img {
             display: block;
             display: block;
-            max-width: 86%;
+            max-width: 84%;
             border-radius: 5px;
             cursor: pointer;
             max-height: 100%;

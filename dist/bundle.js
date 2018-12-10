@@ -12398,6 +12398,17 @@ class CurrMovieList {
             this.movies = movies;
             this.notifyObservers("listChanged");
         };
+        this.getGenre = () => {
+            return this.currGenre;
+        };
+        this.addMovies = (movs) => {
+            this.movies = this.movies.concat(movs);
+            this.notifyObservers("listChanged");
+        };
+        this.setGenre = (genre) => {
+            this.currGenre = genre;
+            this.notifyObservers("genreChanged");
+        };
         this.setCurrMovie = (movieID) => {
             this.currMovie = this.movies.find((element) => {
                 return element.id == movieID;
@@ -12476,7 +12487,7 @@ class MainBody extends React.Component {
     }
     render() {
         return (React.createElement("div", { id: "mainBody" },
-            React.createElement(MovieGrid_1.MovieGrid, { item: { callBack: this.childCallback, show: this.state.showingChild == mainview.grid }, movies: this.movies }),
+            React.createElement(MovieGrid_1.MovieGrid, { item: { callBack: this.childCallback, show: this.state.showingChild == mainview.grid }, movies: this.movies, genre: exports.movieList.getGenre() }),
             React.createElement(SoloDisplay_1.SoloMovieDisplay, { item: { callBack: this.childCallback, show: this.state.showingChild == mainview.solo }, movie: exports.movieList.getcurrMovie() }),
             React.createElement(FilterPage, { item: { callBack: this.childCallback, show: this.state.showingChild == mainview.filters } })));
     }
@@ -12488,7 +12499,7 @@ class FilterPage extends React.Component {
 }
 class MainPage extends React.Component {
     componentWillMount() {
-        axios_1.default.get("getPopular").then((response) => {
+        axios_1.default.get("getGenre").then((response) => {
             exports.movieList.setMovies(response.data.results);
         });
     }
@@ -12533,26 +12544,74 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const React = __webpack_require__(/*! react */ "react");
 const MainPage_1 = __webpack_require__(/*! ./MainPage */ "./src/components/MainPage.tsx");
 const Utilities_1 = __webpack_require__(/*! ./Utilities */ "./src/components/Utilities.ts");
-const rowSize = 5;
-const movieCount = 6;
-class MovieGrid extends React.Component {
-    constructor() {
-        super(...arguments);
-        this.mov = [];
-    }
+const $ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
+exports.moviesPerPage = 14;
+class MoviePage extends React.Component {
     render() {
         let row1Movies = [];
         let row2Movies = [];
-        if (this.props.movies && this.props.movies.length >= 10) {
-            row1Movies = this.props.movies.slice(0, movieCount);
-            row2Movies = this.props.movies.slice(movieCount, movieCount * 2);
+        if (this.props.movies && this.props.movies.length >= exports.moviesPerPage) {
+            row1Movies = this.props.movies.slice(0, exports.moviesPerPage / 2);
+            row2Movies = this.props.movies.slice(exports.moviesPerPage / 2, exports.moviesPerPage);
         }
-        return (React.createElement("div", { id: "movieGrid", className: this.props.item.show ? "shown" : "hidden" },
+        return (React.createElement("div", { className: "moviePage" },
             React.createElement(React.Fragment, null,
                 React.createElement(MovieRow, { rowMovies: row1Movies }),
-                React.createElement(MovieRow, { rowMovies: row2Movies })),
-            React.createElement("i", { className: "goRight fas fa-caret-right", onClick: Utilities_1.unimplemented }),
-            React.createElement("i", { className: "goLeft fas fa-caret-left", onClick: Utilities_1.unimplemented })));
+                React.createElement(MovieRow, { rowMovies: row2Movies }))));
+    }
+}
+class MovieGrid extends React.Component {
+    constructor(props) {
+        super(props);
+        this.pages = [];
+        this.state = { pageNumber: 0 };
+        this.mov = [];
+        this.componentWillMount = () => {
+            this.turnPage(true);
+            this.leftArrowRef = React.createRef();
+        };
+        this.turnPage = (right = false) => {
+            if (right == false && this.state.pageNumber == 1) {
+                return;
+            }
+            this.setState({ pageNumber: this.state.pageNumber += (right ? 1 : -1) });
+            this.addMoreMovies();
+            $("#moviePages").animate({ left: ((this.state.pageNumber - 1) * -100) + "%" }, 200);
+        };
+        this.addMoreMovies = () => {
+            if ((this.state.pageNumber + 1) * exports.moviesPerPage > this.props.movies.length) {
+                Utilities_1.getGenre(null, this.state.pageNumber + 1, true);
+            }
+        };
+        this.componentWillReceiveProps = (props) => {
+            var pageCount = Math.floor(props.movies.length / exports.moviesPerPage);
+            this.pages = [];
+            for (var i = 0; i < pageCount; i++) {
+                var page = props.movies.slice(i * exports.moviesPerPage, (i + 1) * exports.moviesPerPage);
+                this.pages[i] = page;
+            }
+            if (props.genre != this.props.genre) {
+                this.setState({ pageNumber: 1 });
+                this.addMoreMovies();
+            }
+        };
+    }
+    keyPress(event) {
+        if (event.keyCode == 37) {
+            this.turnPage();
+        }
+        else if (event.keyCode == 39) {
+            this.turnPage(true);
+        }
+    }
+    render() {
+        var leftArrClass = "goLeft fas fa-caret-left " + ((this.state.pageNumber == 1) ? "hidden" : "shown");
+        return (React.createElement("div", { id: "movieGrid", tabIndex: 0, className: this.props.item.show ? "shown" : "hidden", onKeyDown: (event) => { this.keyPress(event); } },
+            React.createElement("div", { id: "moviePages", style: { left: ((this.state.pageNumber - 1) * -100) + "%" } }, this.pages.map((page, idx) => {
+                return React.createElement(MoviePage, { key: idx, movies: page });
+            })),
+            React.createElement("i", { className: "goRight fas fa-caret-right", onClick: () => { this.turnPage(true); } }),
+            React.createElement("i", { className: leftArrClass, onClick: () => { this.turnPage(); } })));
     }
 }
 exports.MovieGrid = MovieGrid;
@@ -12565,8 +12624,8 @@ class MovieRow extends React.Component {
                 cell.img_path = MainPage_1.img300_450_url + cell.poster_path;
             });
         }
-        return React.createElement("div", { className: "movieRow" }, cells.map((element) => {
-            return React.createElement(MovieCell, { mov: element });
+        return React.createElement("div", { className: "movieRow" }, cells.map((element, index) => {
+            return React.createElement(MovieCell, { key: index, mov: element });
         }));
     }
 }
@@ -12621,6 +12680,13 @@ class PrefSignIn extends React.Component {
     }
 }
 class SecondHeader extends React.Component {
+    constructor() {
+        super(...arguments);
+        this.state = { selectedGenre: "" };
+        this.genreClicked = (val) => {
+            this.setState({ selectedGenre: val });
+        };
+    }
     render() {
         return (React.createElement("div", { id: "secondHeader" },
             React.createElement("div", { id: "preferenceHeader" },
@@ -12629,26 +12695,15 @@ class SecondHeader extends React.Component {
                 React.createElement(PrefSignIn, null)),
             React.createElement("div", { id: "genreHeader" },
                 React.createElement("div", { id: "genreHeaderInner" }, Main.popularGenres.map(element => {
-                    return React.createElement(GenreTab, { key: Main.theMDBGenreMap[element], val: element });
+                    return React.createElement(GenreTab, { callback: this.genreClicked, chosen: element == this.state.selectedGenre, key: Main.theMDBGenreMap[element] || element, val: element });
                 })))));
     }
 }
 exports.SecondHeader = SecondHeader;
-function getGenre(element) {
-    element = (element.toLowerCase() === "musical") ? "Music" : element;
-    element = (element.toLowerCase() === "sci-fi") ? "Science Fiction" : element;
-    axios_1.default.get("getGenre", {
-        params: {
-            genreID: Main.theMDBGenreMap[element]
-        }
-    }).then((response) => {
-        Main.movieList.setMovies(response.data.results);
-    });
-}
 class MoreMenu extends React.Component {
     render() {
         return (React.createElement("div", { className: "genreMenu" }, Main.otherGenres.map((element) => {
-            return (React.createElement("div", { onClick: () => getGenre(element) }, element));
+            return (React.createElement("div", { key: element, onClick: () => Util.getGenre(element) }, element));
         })));
     }
 }
@@ -12658,7 +12713,8 @@ class GenreTab extends React.Component {
         this.state = { showPopupMenu: false };
         this.click = () => {
             if (this.props.val !== "More") {
-                getGenre(this.props.val);
+                Util.getGenre(this.props.val);
+                this.props.callback(this.props.val);
             }
         };
         this.mouseEnter = () => {
@@ -12673,7 +12729,8 @@ class GenreTab extends React.Component {
         };
     }
     render() {
-        return (React.createElement("a", { className: "genreTab", onClick: this.click.bind(this), onMouseEnter: this.mouseEnter.bind(this), onMouseLeave: this.mouseLeave },
+        var className = "genreTab" + ((this.props.chosen) ? " chosen" : "");
+        return (React.createElement("a", { className: className, onClick: this.click.bind(this), onMouseEnter: this.mouseEnter.bind(this), onMouseLeave: this.mouseLeave },
             React.createElement("div", null, this.props.val),
             this.state.showPopupMenu && React.createElement(MoreMenu, null)));
     }
@@ -12855,6 +12912,8 @@ exports.TopHeader = TopHeader;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+const axios_1 = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+const Main = __webpack_require__(/*! ./MainPage */ "./src/components/MainPage.tsx");
 function shuffleArray(array) {
     for (var i = array.length - 1; i > 0; i--) {
         var j = Math.floor(Math.random() * (i + 1));
@@ -12868,6 +12927,34 @@ function unimplemented() {
     alert("This feature is unfinished but coming soon!");
 }
 exports.unimplemented = unimplemented;
+let lastGenre = "";
+function getGenre(Genre, pageNum = 1, add = false, callBack = null) {
+    var genre = Genre;
+    if (genre == null) {
+        genre = lastGenre;
+    }
+    lastGenre = genre;
+    genre = (genre.toLowerCase() === "musical") ? "Music" : genre;
+    genre = (genre.toLowerCase() === "sci-fi") ? "Science Fiction" : genre;
+    Main.movieList.setGenre(genre);
+    axios_1.default.get("getGenre", {
+        params: {
+            genreID: Main.theMDBGenreMap[genre],
+            pageNum: pageNum
+        }
+    }).then((response) => {
+        if (add) {
+            Main.movieList.addMovies(response.data.results);
+        }
+        else {
+            Main.movieList.setMovies(response.data.results);
+        }
+        if (callBack) {
+            callBack();
+        }
+    });
+}
+exports.getGenre = getGenre;
 ;
 
 

@@ -20,6 +20,11 @@ class PrefSignIn extends React.Component {
 }
 
 export class SecondHeader extends React.Component {
+    readonly state = {selectedGenre:""}
+    genreClicked = (val:string) => {
+        this.setState({selectedGenre:val});
+    }
+
     render() {
         return (
         <div id="secondHeader">
@@ -33,7 +38,11 @@ export class SecondHeader extends React.Component {
                 <div id="genreHeaderInner">
                 {
                     Main.popularGenres.map(element => {
-                        return <GenreTab key={Main.theMDBGenreMap[element]} val={element}/>
+                        
+                        return <GenreTab callback={this.genreClicked} 
+                                         chosen={element == this.state.selectedGenre} 
+                                         key={Main.theMDBGenreMap[element] || element} 
+                                         val={element}/>
                     })
                 }
                 </div>
@@ -43,22 +52,6 @@ export class SecondHeader extends React.Component {
     }
 }
 
-function getGenre(element:string) {
-    element = (element.toLowerCase() === "musical") ? "Music" : element;
-    element = (element.toLowerCase() === "sci-fi") ? "Science Fiction" : element;
-   
-    axios.get("getGenre", 
-    {
-        params: {
-          genreID: Main.theMDBGenreMap[element]
-        }
-    }
-    ).then(
-        (response) => {
-            Main.movieList.setMovies(response.data.results);
-        }
-    ); 
-}
 
 class MoreMenu extends React.Component {
     render() {
@@ -67,7 +60,7 @@ class MoreMenu extends React.Component {
             {
                 Main.otherGenres.map((element) => {
                     return (
-                        <div onClick={() =>getGenre(element)}>{element}</div>
+                        <div key={element} onClick={() =>Util.getGenre(element)}>{element}</div>
                     )
                 })
             }
@@ -76,11 +69,12 @@ class MoreMenu extends React.Component {
     }
 }
 
-class GenreTab extends React.Component<{val:string}> {
+class GenreTab extends React.Component<{val:string, callback:Function, chosen:boolean}> {
     readonly state = {showPopupMenu:false}
     click = () => {
         if (this.props.val !== "More") {
-            getGenre(this.props.val);
+            Util.getGenre(this.props.val);
+            this.props.callback(this.props.val);
         }
     }
     mouseEnter = () => {
@@ -94,8 +88,9 @@ class GenreTab extends React.Component<{val:string}> {
         }
     }
     render() {
+        var className = "genreTab" + ((this.props.chosen) ? " chosen" : "");
         return (
-        <a className="genreTab"
+        <a className={className}
         onClick={this.click.bind(this)}
         onMouseEnter={this.mouseEnter.bind(this)}
         onMouseLeave={this.mouseLeave}

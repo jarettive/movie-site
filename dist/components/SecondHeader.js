@@ -22,6 +22,13 @@ class PrefSignIn extends React.Component {
     }
 }
 class SecondHeader extends React.Component {
+    constructor() {
+        super(...arguments);
+        this.state = { selectedGenre: "" };
+        this.genreClicked = (val) => {
+            this.setState({ selectedGenre: val });
+        };
+    }
     render() {
         return (React.createElement("div", { id: "secondHeader" },
             React.createElement("div", { id: "preferenceHeader" },
@@ -30,26 +37,15 @@ class SecondHeader extends React.Component {
                 React.createElement(PrefSignIn, null)),
             React.createElement("div", { id: "genreHeader" },
                 React.createElement("div", { id: "genreHeaderInner" }, Main.popularGenres.map(element => {
-                    return React.createElement(GenreTab, { key: Main.theMDBGenreMap[element], val: element });
+                    return React.createElement(GenreTab, { callback: this.genreClicked, chosen: element == this.state.selectedGenre, key: Main.theMDBGenreMap[element] || element, val: element });
                 })))));
     }
 }
 exports.SecondHeader = SecondHeader;
-function getGenre(element) {
-    element = (element.toLowerCase() === "musical") ? "Music" : element;
-    element = (element.toLowerCase() === "sci-fi") ? "Science Fiction" : element;
-    axios_1.default.get("getGenre", {
-        params: {
-            genreID: Main.theMDBGenreMap[element]
-        }
-    }).then((response) => {
-        Main.movieList.setMovies(response.data.results);
-    });
-}
 class MoreMenu extends React.Component {
     render() {
         return (React.createElement("div", { className: "genreMenu" }, Main.otherGenres.map((element) => {
-            return (React.createElement("div", { onClick: () => getGenre(element) }, element));
+            return (React.createElement("div", { key: element, onClick: () => Util.getGenre(element) }, element));
         })));
     }
 }
@@ -59,7 +55,8 @@ class GenreTab extends React.Component {
         this.state = { showPopupMenu: false };
         this.click = () => {
             if (this.props.val !== "More") {
-                getGenre(this.props.val);
+                Util.getGenre(this.props.val);
+                this.props.callback(this.props.val);
             }
         };
         this.mouseEnter = () => {
@@ -74,7 +71,8 @@ class GenreTab extends React.Component {
         };
     }
     render() {
-        return (React.createElement("a", { className: "genreTab", onClick: this.click.bind(this), onMouseEnter: this.mouseEnter.bind(this), onMouseLeave: this.mouseLeave },
+        var className = "genreTab" + ((this.props.chosen) ? " chosen" : "");
+        return (React.createElement("a", { className: className, onClick: this.click.bind(this), onMouseEnter: this.mouseEnter.bind(this), onMouseLeave: this.mouseLeave },
             React.createElement("div", null, this.props.val),
             this.state.showPopupMenu && React.createElement(MoreMenu, null)));
     }

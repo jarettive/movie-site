@@ -19,7 +19,7 @@ body, #main {
   font-weight: bold;
   font-kerning: 20px;
   color: white;
-  height: 14%;
+  height: 12%;
   display: inline-block; }
   #topHeader > * {
     display: inline-block; }
@@ -72,7 +72,7 @@ body, #main {
   color: white;
   background-image: linear-gradient(to right, blue, #02b2c9, #02c95c); }
   #secondHeader #preferenceHeader {
-    height: 62.5%; }
+    height: 68%; }
     #secondHeader #preferenceHeader #questionsBanner {
       text-align: center;
       height: 72%;
@@ -109,7 +109,7 @@ body, #main {
           #secondHeader #preferenceHeader .prefQuestion .questionOptions .affirmative span, #secondHeader #preferenceHeader .prefQuestion .questionOptions .negative span {
             margin: 0 13px 0 7px; }
   #secondHeader #genreHeader {
-    height: 37.5%;
+    height: 32%;
     background-color: #2b2b2b33; }
     #secondHeader #genreHeader #genreHeaderInner {
       text-align: center;
@@ -118,8 +118,12 @@ body, #main {
       display: inline-block;
       color: white;
       height: 100%;
-      margin: 0 3.5vw;
+      padding: 0 10px;
+      margin: 0 2.8vw;
       position: relative; }
+      #secondHeader #genreHeader .genreTab.chosen {
+        background: #2b2b2b33;
+        border-radius: 8px; }
       #secondHeader #genreHeader .genreTab > div:first-child {
         position: relative;
         top: 50%;
@@ -134,7 +138,8 @@ body, #main {
     border-bottom-left-radius: 4px;
     border-bottom-right-radius: 4px;
     top: 100%;
-    right: -65px;
+    left: 50%;
+    transform: translateX(-50%);
     z-index: 5;
     text-shadow: none; }
     #secondHeader .genreMenu > div {
@@ -150,14 +155,22 @@ body, #main {
 #mainBody {
   background-color: #443c4c;
   width: 100%;
-  height: 96%;
+  height: 82%;
   position: relative; }
   #mainBody * {
     box-sizing: border-box; }
   #mainBody #movieGrid {
     position: absolute;
     height: 100%;
-    width: 100%; }
+    width: 100%;
+    overflow: hidden; }
+    #mainBody #movieGrid #moviePages {
+      white-space: nowrap;
+      position: relative; }
+    #mainBody #movieGrid .moviePage {
+      display: inline-block;
+      vertical-align: top;
+      width: 100%; }
     #mainBody #movieGrid i {
       position: absolute;
       top: 50%;
@@ -166,9 +179,9 @@ body, #main {
       color: #efefef;
       transform: translateY(-50%); }
     #mainBody #movieGrid .goRight {
-      right: 1.7%; }
+      right: 1.3%; }
     #mainBody #movieGrid .goLeft {
-      left: 1.7%; }
+      left: 1.3%; }
   #mainBody #filterPage {
     top: 0;
     position: absolute;
@@ -237,14 +250,14 @@ body, #main {
     vertical-align: top;
     height: 100%;
     position: relative;
-    width: 15.33333%;
+    width: 13.14286%;
     text-align: center;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
     color: white; }
     #mainBody .movieCell img {
       display: block;
       display: block;
-      max-width: 86%;
+      max-width: 84%;
       border-radius: 5px;
       cursor: pointer;
       max-height: 100%;

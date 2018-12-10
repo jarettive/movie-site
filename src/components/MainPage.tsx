@@ -30,9 +30,24 @@ export class CurrMovieList implements observable {
 
     private movies: any[] = [];
     private currMovie : any;
+    private currGenre : string;
     setMovies = (movies:any[]) => {
         this.movies = movies;
         this.notifyObservers("listChanged");
+    }
+
+    getGenre = () => {
+        return this.currGenre;
+    }
+
+    addMovies = (movs:any[]) => {
+        this.movies = this.movies.concat(movs);
+        this.notifyObservers("listChanged");
+    }
+
+    setGenre = (genre:string) => {
+        this.currGenre = genre;
+        this.notifyObservers("genreChanged");
     }
 
     setCurrMovie = (movieID : string) => {
@@ -123,7 +138,7 @@ class MainBody extends React.Component implements observer {
     render() {
         return (
         <div id="mainBody">
-          <MovieGrid item={{callBack:this.childCallback, show: this.state.showingChild == mainview.grid}} movies={this.movies}/>
+          <MovieGrid item={{callBack:this.childCallback, show: this.state.showingChild == mainview.grid}} movies={this.movies} genre={movieList.getGenre()}/>
           <SoloMovieDisplay item={{callBack:this.childCallback, show: this.state.showingChild == mainview.solo}} movie={movieList.getcurrMovie()}/>
           <FilterPage item={{callBack:this.childCallback, show: this.state.showingChild == mainview.filters}}/>
         </div>
@@ -142,7 +157,7 @@ class FilterPage extends React.Component<{item:subPageItem}>{
 
 export class MainPage extends React.Component {
     componentWillMount() {
-        axios.get("getPopular").then(
+        axios.get("getGenre").then(
             (response) => {
                 movieList.setMovies(response.data.results);
             }

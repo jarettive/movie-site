@@ -31,6 +31,17 @@ class CurrMovieList {
             this.movies = movies;
             this.notifyObservers("listChanged");
         };
+        this.getGenre = () => {
+            return this.currGenre;
+        };
+        this.addMovies = (movs) => {
+            this.movies = this.movies.concat(movs);
+            this.notifyObservers("listChanged");
+        };
+        this.setGenre = (genre) => {
+            this.currGenre = genre;
+            this.notifyObservers("genreChanged");
+        };
         this.setCurrMovie = (movieID) => {
             this.currMovie = this.movies.find((element) => {
                 return element.id == movieID;
@@ -109,7 +120,7 @@ class MainBody extends React.Component {
     }
     render() {
         return (React.createElement("div", { id: "mainBody" },
-            React.createElement(MovieGrid_1.MovieGrid, { item: { callBack: this.childCallback, show: this.state.showingChild == mainview.grid }, movies: this.movies }),
+            React.createElement(MovieGrid_1.MovieGrid, { item: { callBack: this.childCallback, show: this.state.showingChild == mainview.grid }, movies: this.movies, genre: exports.movieList.getGenre() }),
             React.createElement(SoloDisplay_1.SoloMovieDisplay, { item: { callBack: this.childCallback, show: this.state.showingChild == mainview.solo }, movie: exports.movieList.getcurrMovie() }),
             React.createElement(FilterPage, { item: { callBack: this.childCallback, show: this.state.showingChild == mainview.filters } })));
     }
@@ -121,7 +132,7 @@ class FilterPage extends React.Component {
 }
 class MainPage extends React.Component {
     componentWillMount() {
-        axios_1.default.get("getPopular").then((response) => {
+        axios_1.default.get("getGenre").then((response) => {
             exports.movieList.setMovies(response.data.results);
         });
     }
