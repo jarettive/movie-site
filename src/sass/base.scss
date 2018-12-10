@@ -282,6 +282,7 @@ body, #main {
     #soloMovieDisplay {
         width: 80%;
         height: 85%;
+        box-shadow: 4px 5px 27px #00000073;
         border-radius: 30px;
         background-color: $backgroundCol2;
         white-space: nowrap;
@@ -331,6 +332,7 @@ body, #main {
         }
         img {
             height: 80%;
+            box-shadow: 3px 3px 27px #0000007d;
             border-radius: 12px;
         }
 
@@ -357,6 +359,7 @@ body, #main {
         font-family: $headerFont;
         color:white;
         img {
+            box-shadow: 6px 0px 27px #00000054;
             display: block;
             display: block;
             max-width: 84%;
