@@ -54,11 +54,22 @@ body, #main {
       position: absolute;
       background: #342d3a;
       z-index: 100000;
-      padding: 10px;
+      padding: 10px 0;
       left: 50%;
       transform: translateX(-50%);
-      width: 84%;
+      width: 100%;
       border-radius: 18px; }
+      #topHeader #searchBar #searchResults .searchResult {
+        width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        border-radius: 4px;
+        padding: 4px 12px;
+        text-overflow: ellipsis;
+        box-sizing: border-box;
+        cursor: pointer; }
+        #topHeader #searchBar #searchResults .searchResult:hover {
+          background: #675b72; }
     #topHeader #searchBar i.fa-search {
       position: absolute;
       color: #443c4c;

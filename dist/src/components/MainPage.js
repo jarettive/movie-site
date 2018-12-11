@@ -58,10 +58,11 @@ class CurrMovieList {
             this.notifyObservers("genreChanged");
         };
         this.setCurrMovie = (movieID) => {
+            console.log(movieID);
             this.currMovie = this.movies.find((element) => {
                 return element.id == movieID;
             });
-            if (!this.currMovie.imdb_id) {
+            if (!this.currMovie || !this.currMovie.imdb_id) {
                 axios_1.default.get("getMovie", { params: { movieID: movieID } }).then((response) => {
                     this.currMovie = response.data;
                     this.notifyObservers("movieChanged");

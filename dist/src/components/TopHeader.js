@@ -31,7 +31,7 @@ class TopHeader extends React.Component {
                     React.createElement("input", { type: "text", placeholder: this.state.showText == true ? "Search movies" : "", onKeyDown: this.search, onFocus: (inp) => { this.setState({ showText: false }); }, onBlur: (inp) => { this.setState({ showText: true }); } }),
                     !this.state.showText && this.state.potentials.length > 0 &&
                         React.createElement("div", { id: "searchResults" }, this.state.potentials.map((element) => {
-                            return React.createElement("div", null, element.title);
+                            return React.createElement("div", { className: "searchResult", onMouseDown: () => { console.dir(element); MainPage_1.movieList.setCurrMovie(element.id); } }, element.title + " (" + element.release_date.substring(0, 4) + ")");
                         }))))));
     }
 }

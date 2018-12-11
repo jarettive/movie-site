@@ -40,11 +40,13 @@ export class TopHeader extends React.Component<any, any> {
                             onKeyDown={this.search}
                             onFocus={(inp)=>{ this.setState({showText:false})}}
                             onBlur= {(inp)=>{ this.setState({showText:true})}} />
-                    {!this.state.showText && this.state.potentials.length > 0 &&
+                    {!this.state.showText && this.state.potentials.length > 0 && 
                     <div id="searchResults">
                         {   
                             this.state.potentials.map((element)=>{
-                                return <div>{element.title}</div>
+                                return <div className="searchResult" onMouseDown={()=>{console.dir(element);movieList.setCurrMovie(element.id)}}>
+                                    {element.title + " (" + element.release_date.substring(0,4) +")"}
+                                    </div>
                             })
                         }
                     </div>

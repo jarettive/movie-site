@@ -66,10 +66,11 @@ export class CurrMovieList implements observable {
     }
 
     setCurrMovie = (movieID : string) => {
+        console.log(movieID);
         this.currMovie = this.movies.find((element:any) =>{
             return element.id == movieID;
         });
-        if (!this.currMovie.imdb_id) {
+        if (!this.currMovie || !this.currMovie.imdb_id) {
             axios.get("getMovie", { params: {movieID:movieID}}).then(
                 (response) => {
                    this.currMovie = response.data;
