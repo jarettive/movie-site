@@ -2,6 +2,7 @@
 $red1 : #fcf0f0;
 $grey1: #2b2b2b;
 $white1: #f7f6ff;
+$backgroundCol0 : #342d3a;
 $backgroundCol1 : #443c4c;
 $backgroundCol2 : #675b72;
 $backgroundCol3 : #6d5982;
@@ -64,7 +65,7 @@ body, #main {
     }
 
     #titleText {
-        margin-left: 7vw;
+        margin-left: 12vw;
         font-size: 54px;
         letter-spacing: 4px;
     }
@@ -89,6 +90,8 @@ body, #main {
     
     .rightCentered {
         width: 40%;
+        position: relative;
+        z-index: 8;
         > * {
             display: inline-block;
         }
@@ -101,6 +104,16 @@ body, #main {
         position: relative;
         background-color: $white1;
         border-radius: 20px;
+        #searchResults {
+            position: absolute;
+            background: #342d3a;
+            z-index: 100000;
+            padding: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 84%;
+            border-radius: 18px;
+        }
         i.fa-search {
             position: absolute;
             color: $backgroundCol1;
@@ -197,7 +210,7 @@ body, #main {
             color: white;
             height: 100%;
             padding: 0 10px;
-            margin: 0 2.8vw;
+            margin: 0 1.6vw;
             &.chosen {
                 background: #2b2b2b33;
                 border-radius: 8px;
@@ -256,7 +269,7 @@ body, #main {
             vertical-align: top;
             width: 100%;
         }
-        i {
+        i.moveArrow {
             position: absolute;
             top:50%;
             cursor: pointer;
@@ -283,7 +296,7 @@ body, #main {
         width: 80%;
         height: 85%;
         box-shadow: 4px 5px 27px #00000073;
-        border-radius: 30px;
+        border-radius: 20px;
         background-color: $backgroundCol2;
         white-space: nowrap;
         font-family: $headerFont;
@@ -295,7 +308,10 @@ body, #main {
             white-space: normal;
             @include vertical-align();
         }
-        
+        #tagLine {
+            font-style: italic;
+            font-weight: bold;
+        }
        .left {
             width: 30%;
             text-align: center;
@@ -326,6 +342,10 @@ body, #main {
             margin: 10px 0;
         }
         
+        #runtime {
+            font-weight: bold;
+            margin-top: 20px;
+        }
         #overview {
             word-break: break-word;
             text-overflow: hidden;
@@ -358,6 +378,51 @@ body, #main {
         text-align: center;
         font-family: $headerFont;
         color:white;
+        transition: opacity 160ms linear;
+        &:hover {
+            .addMovie{
+                opacity: 1;
+            }
+        }
+        .addMovie {
+            position: absolute;
+            z-index: 2;
+            opacity: 0;
+            color: #02c85e;
+            text-shadow: 1px 1px 5px #000000f2;
+            font-size: 2.5vw;
+            cursor: pointer;
+            transition: opacity 200ms;
+            -webkit-text-stroke: .5px black;
+            bottom: 12%;
+            right: 12%;
+            i {
+                vertical-align: top;
+            }
+            &:hover {
+                .addMovieHelper {
+                    opacity: 1;
+                    transition-delay: 300ms;
+                }
+            } 
+            .addMovieHelper {
+                position: absolute;
+                opacity: 0;
+                transform: translateX(-50%);
+                top: -1.8vw;
+                left: 50%;
+                color: white;
+                padding: 5px 8px;
+                border-radius: 10px;
+                font-weight: normal;
+                transition: opacity 200ms;
+                -webkit-text-stroke-width: 0;
+                background: #29242ddd;
+                font-size: 1vw;
+                font-family: sans-serif;
+            }
+        }
+        
         img {
             box-shadow: 6px 0px 27px #00000054;
             display: block;
@@ -405,6 +470,88 @@ body, #main {
                         supported by Chrome and Opera */
 }
 
+#maybeList {
+    position: fixed;
+    box-shadow: 1px 1px 14px black;
+    height: 26vh;
+    border-bottom-right-radius: 18px;
+    width: 10vw;
+    background: #302a35;
+    top: 0;
+    left: 0;
+    font-family: $headerFont;
+    white-space: nowrap;
+    transition: all 200ms;
+    color: white;
+    &:hover {
+        width:40vw;
+        height:46vh;
+        .movieTitle, .muvieChoose, .remove {
+            opacity: 1 !important;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .maybeMovie {
+            margin: 16px 0 !important;
+        }
+        .maybeMovie img {
+            height: 78% !important;
+        }
+    }
+    #maybeContainer {
+        text-align: center;
+        .maybeMovie {
+            display: inline-block;
+            height: 100%;
+            height: 90%;
+            overflow:hidden;
+            margin: 6px 0;
+            position: absolute;
+            left: calc(var(--n) * 0.5%);
+            .movieContainer {
+                height: 100%;
+            }
+            img {
+                height: 80%;
+            }
+            .movieTitle {
+                opacity: 0;
+                margin-top: -4px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                width: 88%;
+                text-align: center;
+            }
+            .remove {
+                opacity: 0;
+                position: absolute;
+                top: 4px;
+                font-size: 22px;
+                color: #fd3a3a;
+                right: 11%;
+                cursor: pointer;
+                transform: translateX(-14%);
+                text-shadow: 1px 1px 5px #000000f2;
+            }
+        }
+    }
+    #maybeLabel {
+        position: absolute;
+        bottom: 6px;
+        left: 50%;
+        font-size: 22px;
+        transform: translateX(-50%);
+    }
+    .muvieChoose {
+        position: absolute;
+        bottom: 12px;
+        opacity: 0;
+        right: 14px;
+        cursor: pointer;
+        font-size: 20px;
+    }
+    
+}
 .popup {
     position: fixed;
     width: 100%;
@@ -440,7 +587,7 @@ body, #main {
 }
 
 $fastTime : 150ms;
-$medTime : 220ms;
+$medTime : 190ms;
 .shown {
     opacity: 1;
     transition: all $medTime linear;

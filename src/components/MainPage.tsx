@@ -5,12 +5,13 @@ import {TopHeader} from "./TopHeader";
 import {SecondHeader} from "./SecondHeader";
 import {observable, observer} from "./Utilities";
 import {SoloMovieDisplay} from "./SoloDisplay";
+import {MaybeListComponent} from "./MaybeList";
 
 export const img300_450_url = "https://image.tmdb.org/t/p/w300_and_h450_bestv2";
 export const img600_900_url = "https://image.tmdb.org/t/p/w600_and_h900_bestv2";
 
 export const theMDBGenreMap:{[key: string]: string} = {}
-export const popularGenres : string[] = ["Action", "Drama", "Comedy", "Thriller", "Horror", "Romance", "More"];
+export const popularGenres : string[] = ["All", "Action", "Drama", "Comedy", "Thriller", "Horror", "Romance", "More"];
 export const otherGenres : string[] = ["Sci-fi", "Animation", "Musical", "Documentary"];
 
 class MainBus implements observable {
@@ -30,7 +31,21 @@ export class CurrMovieList implements observable {
 
     private movies: any[] = [];
     private currMovie : any;
-    private currGenre : string;
+    private currGenre : string = "";
+    unFilteredCount : number = 0;
+    filters: any[] = [];
+    filterList = (filters:any[]) => {
+        var toFilter = [];
+        var toUnfilter = [];
+        var count = 0;
+        this.filters.push("zoo Weee");
+        this.movies.forEach((movie)=>{
+            movie.filtered = (count % 2 == 0);
+            count++;
+        });
+        this.notifyObservers("filtersChanged");
+    }
+
     setMovies = (movies:any[]) => {
         this.movies = movies;
         this.notifyObservers("listChanged");
@@ -89,10 +104,9 @@ export interface subPageItem {show:boolean, callBack:Function};
 
 class MainBody extends React.Component implements observer {
     
-    readonly state = {showingChild:mainview.grid, last:mainview.last};
+    readonly state = {showingChild:mainview.grid, last:mainview.last, changedFilter:false};
     
     movies: any[] = [];
-
     childCallback = (child:mainview) => {
         if (child == mainview.last) {
             child = this.state.last;
@@ -120,6 +134,7 @@ class MainBody extends React.Component implements observer {
     }
     notified(observable:any, event:string) {
         var show = mainview.grid;
+        var filterChanged = false;
         if (event == "movieChanged") {
             show = mainview.solo;
         }
@@ -127,22 +142,27 @@ class MainBody extends React.Component implements observer {
             this.movies = movieList.getMovies();
             show = mainview.grid;
         }
+        if (event == "filtersChanged") {
+            this.movies = movieList.getMovies();
+            filterChanged = true;
+        }
         if (event == "showFilters") {
             show = mainview.filters;
         }
 
         var last = (show == this.state.showingChild) ? this.state.last : this.state.showingChild;
-        this.setState({showingChild:show, last:last});
+        this.setState({showingChild:show, last:last, changedFilter:filterChanged});
     }
 
     render() {
-        return (
+        var result = (
         <div id="mainBody">
-          <MovieGrid item={{callBack:this.childCallback, show: this.state.showingChild == mainview.grid}} movies={this.movies} genre={movieList.getGenre()}/>
+          <MovieGrid item={{callBack:this.childCallback, show: this.state.showingChild == mainview.grid}} movies={this.movies} changedFilter={this.state.changedFilter} genre={movieList.getGenre()}/>
           <SoloMovieDisplay item={{callBack:this.childCallback, show: this.state.showingChild == mainview.solo}} movie={movieList.getcurrMovie()}/>
           <FilterPage item={{callBack:this.childCallback, show: this.state.showingChild == mainview.filters}}/>
         </div>
         );
+        return result;
     }
 }
 
@@ -169,6 +189,7 @@ export class MainPage extends React.Component {
             <TopHeader/>
             <SecondHeader/>
             <MainBody />
+            <MaybeListComponent/>
             </>              
         );
     }

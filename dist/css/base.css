@@ -24,7 +24,7 @@ body, #main {
   #topHeader > * {
     display: inline-block; }
   #topHeader #titleText {
-    margin-left: 7vw;
+    margin-left: 12vw;
     font-size: 54px;
     letter-spacing: 4px; }
   #topHeader #logoText {
@@ -38,7 +38,9 @@ body, #main {
   #topHeader .vertCentered > * {
     display: inline-block; }
   #topHeader .rightCentered {
-    width: 40%; }
+    width: 40%;
+    position: relative;
+    z-index: 8; }
     #topHeader .rightCentered > * {
       display: inline-block; }
   #topHeader #searchBar {
@@ -48,6 +50,15 @@ body, #main {
     position: relative;
     background-color: #f7f6ff;
     border-radius: 20px; }
+    #topHeader #searchBar #searchResults {
+      position: absolute;
+      background: #342d3a;
+      z-index: 100000;
+      padding: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 84%;
+      border-radius: 18px; }
     #topHeader #searchBar i.fa-search {
       position: absolute;
       color: #443c4c;
@@ -119,7 +130,7 @@ body, #main {
       color: white;
       height: 100%;
       padding: 0 10px;
-      margin: 0 2.8vw;
+      margin: 0 1.6vw;
       position: relative; }
       #secondHeader #genreHeader .genreTab.chosen {
         background: #2b2b2b33;
@@ -171,7 +182,7 @@ body, #main {
       display: inline-block;
       vertical-align: top;
       width: 100%; }
-    #mainBody #movieGrid i {
+    #mainBody #movieGrid i.moveArrow {
       position: absolute;
       top: 50%;
       cursor: pointer;
@@ -191,7 +202,7 @@ body, #main {
     width: 80%;
     height: 85%;
     box-shadow: 4px 5px 27px #00000073;
-    border-radius: 30px;
+    border-radius: 20px;
     background-color: #675b72;
     white-space: nowrap;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
@@ -210,6 +221,9 @@ body, #main {
       -webkit-transform: translateY(-50%);
       -ms-transform: translateY(-50%);
       transform: translateY(-50%); }
+    #mainBody #soloMovieDisplay #tagLine {
+      font-style: italic;
+      font-weight: bold; }
     #mainBody #soloMovieDisplay .left {
       width: 30%;
       text-align: center; }
@@ -231,6 +245,9 @@ body, #main {
       font-weight: bold;
       font-size: 36px;
       margin: 10px 0; }
+    #mainBody #soloMovieDisplay #runtime {
+      font-weight: bold;
+      margin-top: 20px; }
     #mainBody #soloMovieDisplay #overview {
       word-break: break-word;
       text-overflow: hidden; }
@@ -255,7 +272,42 @@ body, #main {
     width: 13.14286%;
     text-align: center;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-    color: white; }
+    color: white;
+    transition: opacity 160ms linear; }
+    #mainBody .movieCell:hover .addMovie {
+      opacity: 1; }
+    #mainBody .movieCell .addMovie {
+      position: absolute;
+      z-index: 2;
+      opacity: 0;
+      color: #02c85e;
+      text-shadow: 1px 1px 5px #000000f2;
+      font-size: 2.5vw;
+      cursor: pointer;
+      transition: opacity 200ms;
+      -webkit-text-stroke: .5px black;
+      bottom: 12%;
+      right: 12%; }
+      #mainBody .movieCell .addMovie i {
+        vertical-align: top; }
+      #mainBody .movieCell .addMovie:hover .addMovieHelper {
+        opacity: 1;
+        transition-delay: 300ms; }
+      #mainBody .movieCell .addMovie .addMovieHelper {
+        position: absolute;
+        opacity: 0;
+        transform: translateX(-50%);
+        top: -1.8vw;
+        left: 50%;
+        color: white;
+        padding: 5px 8px;
+        border-radius: 10px;
+        font-weight: normal;
+        transition: opacity 200ms;
+        -webkit-text-stroke-width: 0;
+        background: #29242ddd;
+        font-size: 1vw;
+        font-family: sans-serif; }
     #mainBody .movieCell img {
       box-shadow: 6px 0px 27px #00000054;
       display: block;
@@ -299,6 +351,75 @@ body, #main {
   /* Non-prefixed version, currently
                         supported by Chrome and Opera */ }
 
+#maybeList {
+  position: fixed;
+  box-shadow: 1px 1px 14px black;
+  height: 26vh;
+  border-bottom-right-radius: 18px;
+  width: 10vw;
+  background: #302a35;
+  top: 0;
+  left: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  white-space: nowrap;
+  transition: all 200ms;
+  color: white; }
+  #maybeList:hover {
+    width: 40vw;
+    height: 46vh; }
+    #maybeList:hover .movieTitle, #maybeList:hover .muvieChoose, #maybeList:hover .remove {
+      opacity: 1 !important;
+      margin-left: auto;
+      margin-right: auto; }
+    #maybeList:hover .maybeMovie {
+      margin: 16px 0 !important; }
+    #maybeList:hover .maybeMovie img {
+      height: 78% !important; }
+  #maybeList #maybeContainer {
+    text-align: center; }
+    #maybeList #maybeContainer .maybeMovie {
+      display: inline-block;
+      height: 100%;
+      height: 90%;
+      overflow: hidden;
+      margin: 6px 0;
+      position: absolute;
+      left: calc(var(--n) * 0.5%); }
+      #maybeList #maybeContainer .maybeMovie .movieContainer {
+        height: 100%; }
+      #maybeList #maybeContainer .maybeMovie img {
+        height: 80%; }
+      #maybeList #maybeContainer .maybeMovie .movieTitle {
+        opacity: 0;
+        margin-top: -4px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 88%;
+        text-align: center; }
+      #maybeList #maybeContainer .maybeMovie .remove {
+        opacity: 0;
+        position: absolute;
+        top: 4px;
+        font-size: 22px;
+        color: #fd3a3a;
+        right: 11%;
+        cursor: pointer;
+        transform: translateX(-14%);
+        text-shadow: 1px 1px 5px #000000f2; }
+  #maybeList #maybeLabel {
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    font-size: 22px;
+    transform: translateX(-50%); }
+  #maybeList .muvieChoose {
+    position: absolute;
+    bottom: 12px;
+    opacity: 0;
+    right: 14px;
+    cursor: pointer;
+    font-size: 20px; }
+
 .popup {
   position: fixed;
   width: 100%;
@@ -340,9 +461,9 @@ body, #main {
 
 .shown {
   opacity: 1;
-  transition: all 220ms linear; }
+  transition: all 190ms linear; }
 
 .hidden {
   opacity: 0;
   pointer-events: none;
-  transition: all 220ms linear; }
+  transition: all 190ms linear; }

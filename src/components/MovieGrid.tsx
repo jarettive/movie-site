@@ -2,6 +2,7 @@ import * as React from "react";
 import {movieList, CurrMovieList, subPageItem,  img300_450_url} from "./MainPage";
 import {unimplemented, getGenre} from "./Utilities";
 import * as $ from "jquery";
+import {maybeList} from "./MaybeList";
 
 
 export const moviesPerPage = 14;
@@ -26,14 +27,18 @@ class MoviePage extends React.Component<{movies:any[]}> {
     }
 }
 
-export class MovieGrid extends React.Component<{item:subPageItem, movies:any[], genre:string}> {
+interface GridInfo {item:subPageItem, movies:any[], genre:string, changedFilter:boolean}
+export class MovieGrid extends React.Component<GridInfo> {
     pages: any[] = [];
     readonly state = {pageNumber:0};
-    constructor(props:{item:subPageItem, movies:any[], genre:string}) {
+    constructor(props:GridInfo) {
         super(props);
     }
     mov : number[] = [];
     leftArrowRef: React.RefObject<HTMLDivElement>;
+    unfilteredCnt:number = 0;
+    retrievedPages = 1;
+
     componentWillMount = () => {
         this.turnPage(true);
         this.leftArrowRef = React.createRef();
@@ -49,18 +54,33 @@ export class MovieGrid extends React.Component<{item:subPageItem, movies:any[], 
     }
 
     addMoreMovies = () => {
-        if ((this.state.pageNumber+1) * moviesPerPage > this.props.movies.length) {
-            getGenre(null, this.state.pageNumber+1, true);
+        if ((this.state.pageNumber+1) * moviesPerPage > this.unfilteredCnt) {
+            this.retrievedPages++;
+            getGenre(null, this.retrievedPages, true);
         } 
     }
+
     componentWillReceiveProps = (props:any) => {
-        var pageCount = Math.floor(props.movies.length/moviesPerPage);
         this.pages = [];
-        for (var i = 0; i < pageCount; i++) {
-            var page = props.movies.slice(i*moviesPerPage, (i+1)*moviesPerPage);
-            this.pages[i] = page;
+        var j = 0;
+        var pageNum = 0;
+        this.unfilteredCnt = 0;
+        while (j < props.movies.length) {
+            var unfilteredCnt = 0;
+            var page = [];
+            while (unfilteredCnt < moviesPerPage && j < props.movies.length) {
+                var movie = props.movies[j];
+                if (!movie.filtered) {
+                    unfilteredCnt++;
+                    page.push(movie);
+                } 
+                j++;
+            }
+            this.unfilteredCnt += unfilteredCnt;
+            this.pages[pageNum] = page;
+            pageNum++;
         }
-        if (props.genre != this.props.genre) {
+        if (props.genre != this.props.genre || props.changedFilter) {
             this.setState({pageNumber:1});
             this.addMoreMovies();
         }
@@ -75,7 +95,7 @@ export class MovieGrid extends React.Component<{item:subPageItem, movies:any[], 
     }
 
     render() {
-        var leftArrClass = "goLeft fas fa-caret-left " + ((this.state.pageNumber ==1) ? "hidden" : "shown");
+        var leftArrClass = "moveArrow goLeft fas fa-caret-left " + ((this.state.pageNumber ==1) ? "hidden" : "shown");
         return (
             <div id="movieGrid" tabIndex={0} className={this.props.item.show ? "shown" : "hidden"} onKeyDown={(event)=>{this.keyPress(event)}}>
                 <div id="moviePages" style={{left:  ((this.state.pageNumber-1)*-100)+ "%"}}>
@@ -85,11 +105,10 @@ export class MovieGrid extends React.Component<{item:subPageItem, movies:any[], 
                     })
                 }
                 </div>
-            <i className="goRight fas fa-caret-right"onClick={()=>{this.turnPage(true)}}/>
+            <i className="moveArrow goRight fas fa-caret-right"onClick={()=>{this.turnPage(true)}}/>
             <i className={leftArrClass} onClick={()=>{this.turnPage()}}/>
             </div>
         )
-       
     }
 }
 
@@ -112,16 +131,22 @@ export class MovieRow extends React.Component<{rowMovies:any[]}> {
     }
 }
 
-interface movieCellInfo {title:string, img_path:string, id:string}
+interface movieCellInfo {title:string, img_path:string, id:string, filtered:boolean}
 
 export class MovieCell extends React.Component<{mov:movieCellInfo}> {
+    addMaybe = () => {
+        maybeList.add(this.props.mov);
+    }
     viewMovie = () => {
         movieList.setCurrMovie(this.props.mov.id)
     }
+
     render() {
+        var classes = "movieCell " + (this.props.mov.filtered ? "hidden " : "");
         return (
-            <div className="movieCell">
-                <img onClick={this.viewMovie} src={this.props.mov.img_path}></img>
+            <div className={classes} >
+                <img onClick={this.viewMovie} src={this.props.mov.img_path}/>
+                <i onClick={this.addMaybe} className="addMovie fas fa-plus-square"><div className="addMovieHelper">Add to Maybe List</div></i>
                 <div className="movieTitle">{this.props.mov.title}</div>
             </div>
         )

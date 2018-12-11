@@ -20,7 +20,7 @@ class PrefSignIn extends React.Component {
 }
 
 export class SecondHeader extends React.Component {
-    readonly state = {selectedGenre:""}
+    readonly state = {selectedGenre:"All"}
     genreClicked = (val:string) => {
         this.setState({selectedGenre:val});
     }
@@ -72,7 +72,7 @@ class MoreMenu extends React.Component {
 class GenreTab extends React.Component<{val:string, callback:Function, chosen:boolean}> {
     readonly state = {showPopupMenu:false}
     click = () => {
-        if (this.props.val !== "More") {
+        if (this.props.val !== "More" && !this.props.chosen) {
             Util.getGenre(this.props.val);
             this.props.callback(this.props.val);
         }

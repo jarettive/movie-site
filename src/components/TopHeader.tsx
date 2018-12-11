@@ -1,32 +1,33 @@
 import * as React from "react";
 import axios from "axios";
-import {SigninPopup} from "./MainPage";
+import {SigninPopup, movieList} from "./MainPage";
 import {unimplemented} from "./Utilities";
-class TopSignIn extends React.Component {
-    readonly state = {showPopup:false}
-    togglePopup = () => {
-        // this.setState({showPopup:!this.state.showPopup});
-        unimplemented();
-    }
-    render() {
-        return (
-            <div id="topSignIn">
-                <div onClick={this.togglePopup}>Sign in</div>
-                {this.state.showPopup && <SigninPopup closePopup={this.togglePopup.bind(this)}/>}
-            </div>
-        )
-    }
-}
-
+import {debounce} from "lodash";
 
 ///search/multi?language=en-US&query=zoo
+interface TopState {showText:boolean, potentials:any[]}
 export class TopHeader extends React.Component<any, any> {
-    readonly state = {showText:true}
+    readonly state :TopState = {showText:true, potentials:[]}
+    constructor(props:any) {
+        super(props);
+        this.sendSearch = debounce(this.sendSearch, 200);
+    }
+    search = (event: any) => {
+        this.sendSearch(event.target.value);
+    }
+    sendSearch = (queryStr:string) => {
+        axios.get("search", { params: {queryStr:queryStr}}).then(
+            (response) => {
+                var sorted = response.data.results.sort((el1:any, el2:any) => (el2.popularity - el1.popularity));
+                this.setState({potentials:sorted.slice(0, 5)});
+            }
+        )
+    }
     render() {
         return (
             <div id="topHeader">
                 <div className="vertCentered">
-                    <div id="titleText">MUVIE</div>
+                    <div id="titleText" onClick={()=>{movieList.filterList(["Hulu"])}}>MUVIE</div>
                     <div id="logoText">find movies for you</div>
                 </div>
                 <div className="rightCentered">
@@ -36,9 +37,18 @@ export class TopHeader extends React.Component<any, any> {
                         } 
                         <input type="text" 
                             placeholder={this.state.showText == true ?  "Search movies" : ""} 
-                            onChange={unimplemented}
+                            onKeyDown={this.search}
                             onFocus={(inp)=>{ this.setState({showText:false})}}
                             onBlur= {(inp)=>{ this.setState({showText:true})}} />
+                    {!this.state.showText && this.state.potentials.length > 0 &&
+                    <div id="searchResults">
+                        {   
+                            this.state.potentials.map((element)=>{
+                                return <div>{element.title}</div>
+                            })
+                        }
+                    </div>
+                    }
                     </div>
                 </div>
             </div>)

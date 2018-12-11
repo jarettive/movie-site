@@ -1,20 +1,20 @@
 [
 	{
 		"name" : "Hulu",
-		"type": "viewing-service",
+		"type": "view_service",
 		"question" : "Do you use Hulu to watch movies?"
 	},
 	{"name" : "Netflix",
-	 "type": "viewing-service",
+	 "type": "view_service",
 	 "question" : "Do you use Netflix to watch movies?"},
 	{
 		"name" : "Redbox",
-		"type": "viewing-service",
+		"type": "view_service",
 		"question" : "Do you use Redbox to watch movies?"
 	},
 	{
 		"name" : "Amazon Prime",
-		"type": "viewing-service",
+		"type": "view_service",
 		"question" : "Do you use Amazon Prime to watch movies?"
 	},
 	{

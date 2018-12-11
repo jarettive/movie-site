@@ -65,7 +65,6 @@ app_1.app.get("/getGenre", function (req, res) {
 });
 app_1.app.get("/search", function (req, res) {
     var queryStr = exports.theMDBURL + "search/movie?" + exports.theMDBKey + exports.lang + "&page=1&include_adult=false&query=" + req.query.queryStr;
-    console.dir(queryStr);
     axios_1.default.get(queryStr).then((response) => {
         res.send(response.data);
     });
