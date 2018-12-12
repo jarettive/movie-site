@@ -4,17 +4,18 @@ import * as Main from "./MainPage";
 import * as Util from "./Utilities";
 import * as $ from "jquery";
 
-interface filter {name:string, type:string, question:string};
-let filters : filter[] = []
+interface filter {name:string, type:string, question:string, default:string, userPref:string};
 
 class PrefSignIn extends React.Component {
     readonly state = {showPopup:false}
     showFilters = () => {
          Main.mainBus.notifyObservers("showFilters");   
+         $("#preferenceHeader").css({visibility:"hidden"});
+         document.getElementById("mainBody").scrollIntoView({block:"start", behavior:"smooth"});
     }
     render() {
        return <div id="preferenceSignIn">
-       <div onClick={this.showFilters}><u>View all filters</u></div>
+            <div onClick={this.showFilters}><u>View all filters</u></div>
        </div>
     }
 }
@@ -101,27 +102,39 @@ class GenreTab extends React.Component<{val:string, callback:Function, chosen:bo
     }
 }
 
-class PreferenceBelt extends React.Component {
-    readonly state = {fltrs:filters, leftMarg:0}
+interface prefBeltState {filters:[], leftMarg:number};
+
+class PreferenceBelt extends React.Component implements Util.observer {
+    readonly state:prefBeltState = {filters:[], leftMarg:0}
 
     index : number = 0;
     changedBetween: boolean = false;
+
     componentWillMount() {
         axios.get("\pref-filters.json").then(
             (response) => {
-                filters = response.data;
-                Util.shuffleArray(filters);
-                this.setState({fltrs:filters})
+                var filters = response.data;
+                Util.userFilters.setList(filters);
+                this.setState({filters:Util.shuffleArray(filters)})
                 this.convey();
             }
         )
+    }
+
+    observe(ob:Util.observable) {
+        ob.observers.push(this);
+    }
+    notified(observable:any, event:string) {
+        if (event == "filtersSet" || event == "filterChanged") {
+            this.setState({filters:Util.userFilters.getFilters()})
+        }
     }
 
     nextQuestion = () => {
         var rect = $(".prefQuestion")[0].getBoundingClientRect();
         this.index += 1;
         var animationTime = 600;
-        if (this.index >= this.state.fltrs.length) {
+        if (this.index >= this.state.filters.length) {
             this.index = 0;
             animationTime = 1;
         }
@@ -148,7 +161,7 @@ class PreferenceBelt extends React.Component {
         return (
             <div id="prefBelt" style={{marginTop: 0}}>
             {
-                this.state.fltrs.map((element:filter) => {
+                this.state.filters.map((element:filter) => {
                     return <PreferenceQuestion key={element.name} questionAnswered={this.questionAnswered} filt={element}/>
                 })
             }
@@ -158,17 +171,14 @@ class PreferenceBelt extends React.Component {
 }
 
 export class PreferenceQuestion extends React.Component<{filt:filter, questionAnswered:Function}> {
-    readonly state = {positive:true};
-
+    readonly state = {pref : this.props.filt.userPref || this.props.filt.default}
     constructor(props:any) {
         super(props);
     }
-    positive = () => {
-        this.setState({positive:true});
-        this.props.questionAnswered();
-    }
-    negative = () => {
-        this.setState({positive:false});
+
+    change = (val:string) => {
+        Util.userFilters.changeFilter(this.props.filt.name, val);
+        this.setState({pref:val})
         this.props.questionAnswered();
     }
 
@@ -177,12 +187,12 @@ export class PreferenceQuestion extends React.Component<{filt:filter, questionAn
             <div className="prefQuestion">
             {this.props.filt.question}
                 <div className="questionOptions">
-                    <span className="affirmative" onClick={this.positive}>
-                    {this.state.positive ? <i className="far fa-check-square"></i>: <i className="far fa-square"></i>}
+                    <span className="affirmative" onClick={()=>{this.change("yes")}}>
+                    {(this.state.pref == "yes") ? <i className="far fa-check-square"></i>: <i className="far fa-square"></i>}
                         <span>Yes</span>
                     </span>
-                    <span className="negative" onClick={this.negative}>
-                    {!this.state.positive ? <i className="far fa-check-square"></i>: <i className="far fa-square"></i>}
+                    <span className="negative" onClick={()=>{this.change("no")}}>
+                    {(this.state.pref != "yes") ? <i className="far fa-check-square"></i>: <i className="far fa-square"></i>}
                         <span>No</span>
                     </span>
                 </div>

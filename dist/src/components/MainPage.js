@@ -5,8 +5,11 @@ const axios_1 = require("axios");
 const MovieGrid_1 = require("./MovieGrid");
 const TopHeader_1 = require("./TopHeader");
 const SecondHeader_1 = require("./SecondHeader");
+const Utilities_1 = require("./Utilities");
 const SoloDisplay_1 = require("./SoloDisplay");
 const MaybeList_1 = require("./MaybeList");
+const FilterPage_1 = require("./FilterPage");
+const $ = require("jquery");
 exports.img300_450_url = "https://image.tmdb.org/t/p/w300_and_h450_bestv2";
 exports.img600_900_url = "https://image.tmdb.org/t/p/w600_and_h900_bestv2";
 exports.theMDBGenreMap = {};
@@ -30,35 +33,43 @@ class CurrMovieList {
         this.movies = [];
         this.currGenre = "";
         this.unFilteredCount = 0;
-        this.filters = [];
-        this.filterList = (filters) => {
-            var toFilter = [];
-            var toUnfilter = [];
-            var count = 0;
-            this.filters.push("zoo Weee");
-            this.movies.forEach((movie) => {
-                movie.filtered = (count % 2 == 0);
-                count++;
-            });
-            this.notifyObservers("filtersChanged");
+        this.filterList = (list) => {
+            var filters = Utilities_1.userFilters.getFilters();
+            if (filters.length > 0) {
+                for (var idx in list) {
+                    var movie = list[idx];
+                    movie.filtered = true;
+                    movie.myFilterData.view_service.forEach((service) => {
+                        filters.forEach((filter) => {
+                            var pref = filter.userPref || filter.default;
+                            if (filter.name == service && pref == "yes") {
+                                movie.filtered = false;
+                            }
+                        });
+                    });
+                }
+            }
         };
         this.setMovies = (movies) => {
             this.movies = movies;
+            this.filterList(this.movies);
             this.notifyObservers("listChanged");
         };
         this.getGenre = () => {
             return this.currGenre;
         };
         this.addMovies = (movs) => {
+            this.filterList(movs);
             this.movies = this.movies.concat(movs);
             this.notifyObservers("listChanged");
         };
         this.setGenre = (genre) => {
-            this.currGenre = genre;
-            this.notifyObservers("genreChanged");
+            if (this.currGenre != genre) {
+                this.currGenre = genre;
+                this.notifyObservers("genreChanged");
+            }
         };
         this.setCurrMovie = (movieID) => {
-            console.log(movieID);
             this.currMovie = this.movies.find((element) => {
                 return element.id == movieID;
             });
@@ -74,6 +85,13 @@ class CurrMovieList {
             return this.movies;
         };
     }
+    observe(ob) {
+        ob.observers.push(this);
+    }
+    notified(observable, event) {
+        this.filterList(this.movies);
+        this.notifyObservers("filtersChanged");
+    }
     getcurrMovie() {
         return this.currMovie;
     }
@@ -85,6 +103,7 @@ class CurrMovieList {
 }
 exports.CurrMovieList = CurrMovieList;
 exports.movieList = new CurrMovieList();
+exports.movieList.observe(Utilities_1.userFilters);
 var mainview;
 (function (mainview) {
     mainview[mainview["grid"] = 0] = "grid";
@@ -120,14 +139,17 @@ class MainBody extends React.Component {
         ob.observers.push(this);
     }
     notified(observable, event) {
-        var show = mainview.grid;
+        var show = this.state.showingChild;
         var filterChanged = false;
         if (event == "movieChanged") {
             show = mainview.solo;
         }
+        if (event == "genreChanged") {
+            show = mainview.grid;
+            $("#preferenceHeader").css({ visibility: "" });
+        }
         if (event == "listChanged") {
             this.movies = exports.movieList.getMovies();
-            show = mainview.grid;
         }
         if (event == "filtersChanged") {
             this.movies = exports.movieList.getMovies();
@@ -143,13 +165,8 @@ class MainBody extends React.Component {
         var result = (React.createElement("div", { id: "mainBody" },
             React.createElement(MovieGrid_1.MovieGrid, { item: { callBack: this.childCallback, show: this.state.showingChild == mainview.grid }, movies: this.movies, changedFilter: this.state.changedFilter, genre: exports.movieList.getGenre() }),
             React.createElement(SoloDisplay_1.SoloMovieDisplay, { item: { callBack: this.childCallback, show: this.state.showingChild == mainview.solo }, movie: exports.movieList.getcurrMovie() }),
-            React.createElement(FilterPage, { item: { callBack: this.childCallback, show: this.state.showingChild == mainview.filters } })));
+            React.createElement(FilterPage_1.FilterPage, { item: { callBack: this.childCallback, show: this.state.showingChild == mainview.filters } })));
         return result;
-    }
-}
-class FilterPage extends React.Component {
-    render() {
-        return (React.createElement("div", { id: "filterPage", onClick: () => { this.props.item.callBack(mainview.last); }, className: this.props.item.show ? "shown" : "hidden" }));
     }
 }
 class MainPage extends React.Component {

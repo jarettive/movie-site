@@ -1,13 +1,41 @@
 import axios from "axios";
 import * as Main from "./MainPage";
 
-export function shuffleArray(array:any) {
+class UserFilters implements observable {
+    observers:observer[] = [];
+    private filters:any[] = [];
+    notifyObservers(event:string) {
+        this.observers.forEach(element => {
+            element.notified(this, event);
+        });
+    }
+    setList(list:any) {
+        this.filters = list;
+        this.notifyObservers("filtersSet");
+    }
+    getFilters = () => {
+        return this.filters;
+    }
+    changeFilter(name:string, val:any) {
+        var filt = this.filters.find((filter:any)=>{
+            return filter.name == name;
+        });
+        filt.userPref = val;
+        this.notifyObservers("filterChanged");
+    }
+}
+
+export const userFilters = new UserFilters();
+
+export function shuffleArray(OGarray:any) {
+    var array = OGarray.slice();
     for (var i = array.length - 1; i > 0; i--) {
         var j = Math.floor(Math.random() * (i + 1));
         var temp = array[i];
         array[i] = array[j];
         array[j] = temp;
     }
+    return array;
 }
 
 export function unimplemented() {

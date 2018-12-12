@@ -14,6 +14,10 @@ class MoviePage extends React.Component {
             row1Movies = this.props.movies.slice(0, exports.moviesPerPage / 2);
             row2Movies = this.props.movies.slice(exports.moviesPerPage / 2, exports.moviesPerPage);
         }
+        if (this.props.movies.length < exports.moviesPerPage) {
+            return (React.createElement("div", { className: "moviePage" },
+                React.createElement("div", { className: "loadingSpinner" })));
+        }
         return (React.createElement("div", { className: "moviePage" },
             React.createElement(React.Fragment, null,
                 React.createElement(MovieRow, { rowMovies: row1Movies }),
@@ -29,6 +33,8 @@ class MovieGrid extends React.Component {
         this.unfilteredCnt = 0;
         this.retrievedPages = 1;
         this.componentWillMount = () => {
+            var yes = (event) => { this.keyPress(event); };
+            document.addEventListener("keydown", yes);
             this.turnPage(true);
             this.leftArrowRef = React.createRef();
         };
@@ -38,7 +44,7 @@ class MovieGrid extends React.Component {
             }
             this.setState({ pageNumber: this.state.pageNumber += (right ? 1 : -1) });
             this.addMoreMovies();
-            $("#moviePages").animate({ left: ((this.state.pageNumber - 1) * -100) + "%" }, 200);
+            $("#moviePages").animate({ left: ((this.state.pageNumber - 1) * -100) + "%" }, 180);
         };
         this.addMoreMovies = () => {
             if ((this.state.pageNumber + 1) * exports.moviesPerPage > this.unfilteredCnt) {
@@ -68,22 +74,25 @@ class MovieGrid extends React.Component {
             }
             if (props.genre != this.props.genre || props.changedFilter) {
                 this.setState({ pageNumber: 1 });
+                if (props.genre != this.props.genre) {
+                    $("#moviePages").animate({ left: "0%" }, 1);
+                }
                 this.addMoreMovies();
             }
         };
-    }
-    keyPress(event) {
-        if (event.keyCode == 37) {
-            this.turnPage();
-        }
-        else if (event.keyCode == 39) {
-            this.turnPage(true);
-        }
+        this.keyPress = (event) => {
+            if (event.keyCode == 37) {
+                this.turnPage();
+            }
+            else if (event.keyCode == 39) {
+                this.turnPage(true);
+            }
+        };
     }
     render() {
         var leftArrClass = "moveArrow goLeft fas fa-caret-left " + ((this.state.pageNumber == 1) ? "hidden" : "shown");
-        return (React.createElement("div", { id: "movieGrid", tabIndex: 0, className: this.props.item.show ? "shown" : "hidden", onKeyDown: (event) => { this.keyPress(event); } },
-            React.createElement("div", { id: "moviePages", style: { left: ((this.state.pageNumber - 1) * -100) + "%" } }, this.pages.map((page, idx) => {
+        return (React.createElement("div", { id: "movieGrid", tabIndex: 0, className: this.props.item.show ? "shown" : "hidden" },
+            React.createElement("div", { id: "moviePages" }, this.pages.map((page, idx) => {
                 return React.createElement(MoviePage, { key: idx, movies: page });
             })),
             React.createElement("i", { className: "moveArrow goRight fas fa-caret-right", onClick: () => { this.turnPage(true); } }),

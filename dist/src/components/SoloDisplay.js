@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const MainPage_1 = require("./MainPage");
 const React = require("react");
+const MaybeList_1 = require("./MaybeList");
 class SoloMovieDisplay extends React.Component {
     constructor(props) {
         super(props);
@@ -15,22 +16,37 @@ class SoloMovieDisplay extends React.Component {
     render() {
         var time = (this.props.movie) ? this.props.movie.runtime : 0;
         var hours = Math.floor(time / 60);
-        return (React.createElement("div", { id: "soloMovieDisplay", className: this.props.item.show ? "shown" : "hidden", ref: this.boxRef },
-            React.createElement("i", { id: "soloClose", className: "far fa-times-circle", onClick: () => { this.props.item.callBack(MainPage_1.mainview.last); } }),
-            React.createElement("div", { className: "left" },
-                React.createElement("img", { src: this.props.movie && MainPage_1.img600_900_url + this.props.movie.poster_path }),
-                this.props.movie && this.props.movie.tagline
-                    && React.createElement("div", { id: "tagLine" },
-                        "\"",
-                        this.props.movie.tagline,
-                        "\"")),
-            React.createElement("div", { className: "right" }, this.props.movie &&
-                React.createElement(React.Fragment, null,
-                    React.createElement("div", { id: "soloTitle" }, this.props.movie.title),
-                    React.createElement("div", { id: "overview" }, this.props.movie.overview),
-                    React.createElement("div", { id: "runtime" },
-                        "Runtime: ",
-                        hours + " hour" + ((hours > 1) ? "s " : " ") + time % 60 + " minutes")))));
+        var viewServices = (this.props.movie && this.props.movie.myFilterData.view_service) ? this.props.movie.myFilterData.view_service : [];
+        var services = ["Netflix", "Hulu", "Redbox", "Amazon", "Starz", "HBO"];
+        return (React.createElement("div", { id: "soloMovieOuter", onClick: () => { this.props.item.callBack(MainPage_1.mainview.last); } },
+            React.createElement("div", { id: "soloMovieDisplay", onClick: (event) => { event.stopPropagation(); }, className: this.props.item.show ? "shown" : "hidden", ref: this.boxRef },
+                React.createElement("i", { id: "soloClose", className: "far fa-times-circle", onClick: () => { this.props.item.callBack(MainPage_1.mainview.last); } }),
+                React.createElement("div", { className: "left" },
+                    React.createElement("img", { src: this.props.movie && MainPage_1.img600_900_url + this.props.movie.poster_path }),
+                    this.props.movie && this.props.movie.tagline
+                        && React.createElement("div", { id: "tagLine" },
+                            "\"",
+                            this.props.movie.tagline,
+                            "\"")),
+                React.createElement("div", { className: "right" }, this.props.movie &&
+                    React.createElement(React.Fragment, null,
+                        React.createElement("div", { id: "soloTitle" }, this.props.movie.title),
+                        React.createElement("div", { id: "overview" }, this.props.movie.overview),
+                        React.createElement("div", { id: "runtime" },
+                            "Runtime: ",
+                            (hours > 0) && hours + " hour" + ((hours > 1) ? "s " : " ") + time % 60 + " minutes"),
+                        React.createElement("div", { id: "budget" },
+                            "Budget: $",
+                            this.props.movie.budget && this.props.movie.budget.toLocaleString()),
+                        React.createElement("div", { id: "services" },
+                            React.createElement("div", null, "Available on:"),
+                            services.map((service) => {
+                                var searchTerm = (service == "Amazon") ? "Amazon Video" : service;
+                                var searchTerm = (service == "HBO") ? "HBO Now" : service;
+                                return (React.createElement("div", { className: "service" + ((viewServices.indexOf(searchTerm) != -1) ? "" : " unavailable") },
+                                    React.createElement("img", { src: "images/" + service + ".jpg" })));
+                            })),
+                        React.createElement("div", { id: "maybeButton", onClick: () => { MaybeList_1.maybeList.add(this.props.movie); } }, "Add to Maybe List"))))));
     }
 }
 exports.SoloMovieDisplay = SoloMovieDisplay;

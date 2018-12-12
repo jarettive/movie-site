@@ -15,7 +15,11 @@ class MoviePage extends React.Component<{movies:any[]}> {
             row1Movies = this.props.movies.slice(0, moviesPerPage/2);
             row2Movies = this.props.movies.slice(moviesPerPage/2, moviesPerPage);
         }
-        
+        if (this.props.movies.length < moviesPerPage) {
+            return (<div className="moviePage">
+                <div className="loadingSpinner"></div>
+            </div>);
+        }
         return (
             <div className="moviePage">
                 <>
@@ -40,6 +44,8 @@ export class MovieGrid extends React.Component<GridInfo> {
     retrievedPages = 1;
 
     componentWillMount = () => {
+        var yes = (event:any)=> {this.keyPress(event)};
+        document.addEventListener("keydown", yes)
         this.turnPage(true);
         this.leftArrowRef = React.createRef();
     }
@@ -50,7 +56,7 @@ export class MovieGrid extends React.Component<GridInfo> {
         }
         this.setState({pageNumber: this.state.pageNumber += (right ? 1:-1)})
         this.addMoreMovies();
-        $("#moviePages").animate({left: ((this.state.pageNumber-1)*-100)+ "%"}, 200);
+        $("#moviePages").animate({left: ((this.state.pageNumber-1)*-100)+ "%"}, 180);
     }
 
     addMoreMovies = () => {
@@ -82,11 +88,14 @@ export class MovieGrid extends React.Component<GridInfo> {
         }
         if (props.genre != this.props.genre || props.changedFilter) {
             this.setState({pageNumber:1});
+            if (props.genre != this.props.genre) {
+                $("#moviePages").animate({left: "0%"}, 1);
+            }   
             this.addMoreMovies();
         }
     }
 
-    keyPress(event:React.KeyboardEvent<HTMLDivElement>) {
+    keyPress = (event:any) => {
         if (event.keyCode == 37) {
             this.turnPage();
         } else if (event.keyCode == 39) {
@@ -97,8 +106,11 @@ export class MovieGrid extends React.Component<GridInfo> {
     render() {
         var leftArrClass = "moveArrow goLeft fas fa-caret-left " + ((this.state.pageNumber ==1) ? "hidden" : "shown");
         return (
-            <div id="movieGrid" tabIndex={0} className={this.props.item.show ? "shown" : "hidden"} onKeyDown={(event)=>{this.keyPress(event)}}>
-                <div id="moviePages" style={{left:  ((this.state.pageNumber-1)*-100)+ "%"}}>
+            <div id="movieGrid" 
+                tabIndex={0} 
+                className={this.props.item.show ? "shown" : "hidden"} 
+            >
+                <div id="moviePages">
                 {
                     this.pages.map((page:any, idx:any) => {
                         return <MoviePage key={idx} movies={page}/>

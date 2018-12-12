@@ -27,7 +27,7 @@ export class TopHeader extends React.Component<any, any> {
         return (
             <div id="topHeader">
                 <div className="vertCentered">
-                    <div id="titleText" onClick={()=>{movieList.filterList(["Hulu"])}}>MUVIE</div>
+                    <div id="titleText">MUVIE</div>
                     <div id="logoText">find movies for you</div>
                 </div>
                 <div className="rightCentered">
@@ -44,7 +44,7 @@ export class TopHeader extends React.Component<any, any> {
                     <div id="searchResults">
                         {   
                             this.state.potentials.map((element)=>{
-                                return <div className="searchResult" onMouseDown={()=>{console.dir(element);movieList.setCurrMovie(element.id)}}>
+                                return <div className="searchResult" onMouseDown={()=>{movieList.setCurrMovie(element.id)}}>
                                     {element.title + " (" + element.release_date.substring(0,4) +")"}
                                     </div>
                             })

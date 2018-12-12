@@ -3,9 +3,11 @@ import axios from "axios";
 import {MovieGrid} from "./MovieGrid";
 import {TopHeader} from "./TopHeader";
 import {SecondHeader} from "./SecondHeader";
-import {observable, observer} from "./Utilities";
+import {observable, observer, userFilters} from "./Utilities";
 import {SoloMovieDisplay} from "./SoloDisplay";
 import {MaybeListComponent} from "./MaybeList";
+import {FilterPage} from "./FilterPage";
+import * as $ from "jquery";
 
 export const img300_450_url = "https://image.tmdb.org/t/p/w300_and_h450_bestv2";
 export const img600_900_url = "https://image.tmdb.org/t/p/w600_and_h900_bestv2";
@@ -25,7 +27,7 @@ class MainBus implements observable {
 
 export const mainBus = new MainBus();
 
-export class CurrMovieList implements observable {
+export class CurrMovieList implements observable, observer {
     name = "CurrMovieList";
     observers: observer[] = [];
 
@@ -33,21 +35,36 @@ export class CurrMovieList implements observable {
     private currMovie : any;
     private currGenre : string = "";
     unFilteredCount : number = 0;
-    filters: any[] = [];
-    filterList = (filters:any[]) => {
-        var toFilter = [];
-        var toUnfilter = [];
-        var count = 0;
-        this.filters.push("zoo Weee");
-        this.movies.forEach((movie)=>{
-            movie.filtered = (count % 2 == 0);
-            count++;
-        });
+
+    observe(ob:observable) {
+        ob.observers.push(this);
+    }
+    notified(observable:any, event:string) {
+        this.filterList(this.movies);
         this.notifyObservers("filtersChanged");
+    }
+
+    filterList = (list:any[]) => {
+        var filters = userFilters.getFilters();
+        if (filters.length > 0) {
+            for (var idx in list) {
+                var movie = list[idx];
+                movie.filtered = true;
+                movie.myFilterData.view_service.forEach((service:string)=>{
+                    filters.forEach((filter)=> {
+                        var pref = filter.userPref || filter.default;
+                        if (filter.name == service && pref == "yes") {
+                            movie.filtered = false;
+                        }
+                    })
+                });
+            }
+        }
     }
 
     setMovies = (movies:any[]) => {
         this.movies = movies;
+        this.filterList(this.movies);
         this.notifyObservers("listChanged");
     }
 
@@ -56,17 +73,19 @@ export class CurrMovieList implements observable {
     }
 
     addMovies = (movs:any[]) => {
+        this.filterList(movs);
         this.movies = this.movies.concat(movs);
         this.notifyObservers("listChanged");
     }
 
     setGenre = (genre:string) => {
-        this.currGenre = genre;
-        this.notifyObservers("genreChanged");
+        if (this.currGenre != genre){
+            this.currGenre = genre;
+            this.notifyObservers("genreChanged");
+        }
     }
 
     setCurrMovie = (movieID : string) => {
-        console.log(movieID);
         this.currMovie = this.movies.find((element:any) =>{
             return element.id == movieID;
         });
@@ -96,6 +115,7 @@ export class CurrMovieList implements observable {
 }
 
 export const movieList = new CurrMovieList();
+movieList.observe(userFilters);
 
 export enum mainview {
     grid, solo, filters, last
@@ -134,14 +154,17 @@ class MainBody extends React.Component implements observer {
         ob.observers.push(this);
     }
     notified(observable:any, event:string) {
-        var show = mainview.grid;
+        var show = this.state.showingChild;
         var filterChanged = false;
         if (event == "movieChanged") {
             show = mainview.solo;
         }
+        if (event == "genreChanged") {
+            show = mainview.grid;
+            $("#preferenceHeader").css({visibility:""});
+        }
         if (event == "listChanged") {
             this.movies = movieList.getMovies();
-            show = mainview.grid;
         }
         if (event == "filtersChanged") {
             this.movies = movieList.getMovies();
@@ -164,15 +187,6 @@ class MainBody extends React.Component implements observer {
         </div>
         );
         return result;
-    }
-}
-
-class FilterPage extends React.Component<{item:subPageItem}>{
-    render() {
-        return (
-            <div id="filterPage" onClick={()=>{this.props.item.callBack(mainview.last)}} className={this.props.item.show ? "shown" : "hidden"}>
-            </div>
-        )
     }
 }
 

@@ -8,28 +8,27 @@ exports.theMDBURL = "https://api.themoviedb.org/3/";
 exports.lang = "&language=en-US";
 let cache = {};
 let dummyData = {};
-function generateDummyData(movies) {
-    movies.forEach((movie) => {
-        var movieID = movie.id;
-        if (dummyData[movieID]) {
-        }
-        else {
-            dummyData[movieID] = {};
-        }
+function generateDummyData(movie) {
+    var movieID = movie.id;
+    if (!dummyData[movieID]) {
+        dummyData[movieID] = {};
         for (var key in prefFilters) {
             if (prefFilters.hasOwnProperty(key)) {
                 var obj = prefFilters[key];
                 var d = Math.random();
-                if (d < .4) {
-                    if (!dummyData[movieID[obj["type"]]]) {
-                        dummyData[movieID][obj["type"]] = [];
-                    }
+                if (!dummyData[movieID][obj["type"]]) {
+                    dummyData[movieID][obj["type"]] = [];
+                }
+                if (d < .6) {
                     dummyData[movieID][obj["type"]].push(obj["name"]);
                 }
             }
         }
-        movie.myFilterData = dummyData[movieID];
-    });
+    }
+    else {
+        console.log("already dummy");
+    }
+    movie.myFilterData = dummyData[movieID];
 }
 app_1.app.get('/genres', function (req, res) {
     var queryStr = exports.theMDBURL + "genre/movie/list?" + exports.theMDBKey + exports.lang;
@@ -57,7 +56,9 @@ app_1.app.get("/getGenre", function (req, res) {
     }
     else {
         axios_1.default.get(queryStr).then((response) => {
-            generateDummyData(response.data.results);
+            response.data.results.forEach((movie) => {
+                generateDummyData(movie);
+            });
             res.send(response.data);
             cache[queryStr] = response.data;
         });
@@ -65,7 +66,6 @@ app_1.app.get("/getGenre", function (req, res) {
 });
 app_1.app.get("/search", function (req, res) {
     var queryStr = exports.theMDBURL + "search/movie?" + exports.theMDBKey + exports.lang + "&page=1&include_adult=false&query=" + req.query.queryStr;
-    console.dir(queryStr);
     axios_1.default.get(queryStr).then((response) => {
         res.send(response.data);
     });
@@ -77,6 +77,7 @@ app_1.app.get("/getMovie", function (req, res) {
     }
     else {
         axios_1.default.get(queryStr).then((response) => {
+            generateDummyData(response.data);
             res.send(response.data);
             cache[queryStr] = response.data;
         });

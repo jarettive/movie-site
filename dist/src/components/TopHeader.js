@@ -22,7 +22,7 @@ class TopHeader extends React.Component {
     render() {
         return (React.createElement("div", { id: "topHeader" },
             React.createElement("div", { className: "vertCentered" },
-                React.createElement("div", { id: "titleText", onClick: () => { MainPage_1.movieList.filterList(["Hulu"]); } }, "MUVIE"),
+                React.createElement("div", { id: "titleText" }, "MUVIE"),
                 React.createElement("div", { id: "logoText" }, "find movies for you")),
             React.createElement("div", { className: "rightCentered" },
                 React.createElement("div", { id: "searchBar" },
@@ -31,7 +31,7 @@ class TopHeader extends React.Component {
                     React.createElement("input", { type: "text", placeholder: this.state.showText == true ? "Search movies" : "", onKeyDown: this.search, onFocus: (inp) => { this.setState({ showText: false }); }, onBlur: (inp) => { this.setState({ showText: true }); } }),
                     !this.state.showText && this.state.potentials.length > 0 &&
                         React.createElement("div", { id: "searchResults" }, this.state.potentials.map((element) => {
-                            return React.createElement("div", { className: "searchResult", onMouseDown: () => { console.dir(element); MainPage_1.movieList.setCurrMovie(element.id); } }, element.title + " (" + element.release_date.substring(0, 4) + ")");
+                            return React.createElement("div", { className: "searchResult", onMouseDown: () => { MainPage_1.movieList.setCurrMovie(element.id); } }, element.title + " (" + element.release_date.substring(0, 4) + ")");
                         }))))));
     }
 }

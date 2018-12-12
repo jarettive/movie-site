@@ -11,6 +11,7 @@ $headerFont : -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubu
 
 $moviesPerRow: 7;
 
+$green0 : rgb(0, 185, 83);
 $green1 : rgb(2, 201, 92);
 
 @mixin glowText() {
@@ -32,6 +33,24 @@ a {
     -webkit-transform: translateY(-50%);
     -ms-transform: translateY(-50%);
     transform: translateY(-50%);
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loadingSpinner {
+    border: 16px solid $backgroundCol0;
+    border-radius: 50%;
+    border-top: 16px solid #3498db;
+    width: 120px;
+    height: 120px;
+    -webkit-animation: spin 1s linear infinite; /* Safari */
+    animation: spin 1s linear infinite;
+    position: relative;
+    left: 47% !important;
+    top: 35%;
 }
 
 @mixin hitFloor() {
@@ -272,10 +291,15 @@ body, #main {
         height: 100%;
         width: 100%;
         overflow: hidden;
-
+        &:focus {
+            outline: none;
+        }
         #moviePages {
             white-space: nowrap;
             position: relative;
+        }
+        #moviePages, .moviePage {
+            height: 100%;
         }
         .moviePage {
             display: inline-block;
@@ -305,6 +329,9 @@ body, #main {
         height: 100%;
     }
 
+    #soloMovieOuter {
+        height: 100%;
+    }
     #soloMovieDisplay {
         width: 80%;
         height: 85%;
@@ -326,23 +353,23 @@ body, #main {
             font-weight: bold;
         }
        .left {
-            width: 30%;
+            width: 25%;
             text-align: center;
         }
 
         .right {
             width:70%;
-            padding:25px;
+            padding: 0 10px;
         }
 
         #soloClose {
             position: absolute;
-            top: 15px;
-            font-size: 42px;
+            top: 7px;
+            right: 7px;
+            font-size: 30px;
             color: white;
             z-index:2;
             cursor: pointer;
-            right: 15px;
             &:hover {
                 text-shadow: 1px 0px 8px #b3e7fc;
             }
@@ -352,13 +379,55 @@ body, #main {
             text-align: center;
             font-weight: bold;
             font-size: 36px;
-            margin: 10px 0;
+            line-height: 36px;
+            margin: 5px 0 20px 0;
         }
         
-        #runtime {
+        #runtime, #budget {
             font-weight: bold;
-            margin-top: 20px;
+            margin-top: 10px;
         }
+        #maybeButton {
+            position:absolute;
+            bottom: 0;
+            right: 0;
+            position: absolute;
+            bottom: 12px;
+            font-weight: bold;
+            box-shadow: 1px 1px 16px #00000073;
+            border-radius: 9px;
+            background: $green1;
+            padding: 8px;
+            cursor: pointer;
+            right: 0;
+            &:active {
+                background: $green0;
+            }
+        }
+        #services {
+            position:absolute;
+            bottom: 0;
+            >div:first-child {
+                padding: 8px 0;
+                font-size: 18px;
+                font-weight: bold;
+            }
+            .service {
+                display:inline-block;
+                height:50px;
+                margin: 0 5px;
+                cursor: pointer;
+                img {
+                    height: 100%;
+                }
+                &.unavailable {
+                    opacity: .4;
+                    cursor: inherit;
+                    pointer-events: none;
+                }
+            }
+        }
+    
         #overview {
             word-break: break-word;
             text-overflow: hidden;
@@ -415,14 +484,17 @@ body, #main {
             &:hover {
                 .addMovieHelper {
                     opacity: 1;
+                    display:block;
+                    pointer-events: none;
                     transition-delay: 300ms;
                 }
             } 
             .addMovieHelper {
                 position: absolute;
                 opacity: 0;
+                display:none;
                 transform: translateX(-50%);
-                top: -1.8vw;
+                top: -26px;
                 left: 50%;
                 color: white;
                 padding: 5px 8px;
@@ -497,15 +569,19 @@ body, #main {
     transition: all 200ms;
     color: white;
     &:hover {
-        width:40vw;
         height:46vh;
-        .movieTitle, .muvieChoose, .remove {
+        .movieTitle, .muvieChoose {
             opacity: 1 !important;
             margin-left: auto;
             margin-right: auto;
         }
         .maybeMovie {
             margin: 16px 0 !important;
+            &:hover {
+                .remove {
+                    opacity: 1 !important;
+                }
+            }
         }
         .maybeMovie img {
             height: 78% !important;
@@ -521,11 +597,26 @@ body, #main {
             margin: 6px 0;
             position: absolute;
             left: calc(var(--n) * 0.5%);
+            &.choosing {
+                .chooseArrow {
+                    opacity: 1 !important;
+                }
+            }
+            .chooseArrow {
+                opacity: 0;
+                position: absolute;
+                bottom: 3%;
+                font-size: 40px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
             .movieContainer {
                 height: 100%;
             }
             img {
                 height: 80%;
+                cursor: pointer;
+                border-radius: 5px;
             }
             .movieTitle {
                 opacity: 0;
@@ -541,9 +632,10 @@ body, #main {
                 top: 4px;
                 font-size: 22px;
                 color: #fd3a3a;
-                right: 11%;
+                transition: all 200ms;
+                right: 50%;
                 cursor: pointer;
-                transform: translateX(-14%);
+                transform: translateX(50%);
                 text-shadow: 1px 1px 5px #000000f2;
             }
         }
@@ -562,8 +654,105 @@ body, #main {
         right: 14px;
         cursor: pointer;
         font-size: 20px;
+        &:hover {
+            #muvieChooseHelper{
+                opacity: 1 !important;
+            }
+        }
+        #muvieChooseHelper {
+            position: absolute;
+            opacity: 0;
+            transform: translateX(-50%);
+            top: 1px;
+            right: 100%;
+            padding: 5px 8px;
+            border-radius: 10px;
+            font-weight: normal;
+            transition: opacity 200ms;
+            -webkit-text-stroke-width: 0;
+            background: #29242ddd;
+            font-size: 18px;
+            font-family: sans-serif;
+        }
+    } 
+}
+
+#filterPage {
+    color: white;
+    font-family: $headerFont; 
+    box-sizing: border-box;
+    padding: 5px 25px;
+    #filterBody {
+        margin-left: auto;
+        margin-right: auto;
+        width: 100%;
+        max-width: 850px;
+        > div{
+            width:50%;
+            display: inline-block;
+            vertical-align: top;
+            padding: 10px 45px;
+        }
+        .typeHeader {
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .filterType {
+            padding-bottom: 15px;
+            input {
+                width: 80%;
+                &:focus {
+                    outline: none;
+                }
+            }
+            .descriptor {
+                margin-top: 5px;
+            }
+            .slider {
+                -webkit-appearance: none;
+                height: 8px;
+                margin: 15px 0px;
+                background: lightgray;
+                border-radius: 20px;
+            }
+            .slider::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 20px;
+                height: 20px;
+                border-radius: 30px;
+                background: $green1;
+                cursor: pointer;
+            }
+        }
+        .filterItem {
+            white-space: nowrap;
+            position: relative;
+            font-size: 18px;
+            padding: 3px 0;
+            .questionOptions{
+                right: 0px;
+                position: absolute;
+                span {
+                    cursor: pointer;
+                }
+                .affirmative {
+                    margin: 0 10px;
+                }
+                i {
+                    margin: 0 6px;
+                }
+            }
+            * {
+                display: inline-block;
+            }
+        }
     }
-    
+    #filterTitle {
+        text-align: center;
+        font-weight: bold;
+        font-size: 30px;
+    }
 }
 .popup {
     position: fixed;

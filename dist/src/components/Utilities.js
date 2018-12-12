@@ -2,13 +2,41 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = require("axios");
 const Main = require("./MainPage");
-function shuffleArray(array) {
+class UserFilters {
+    constructor() {
+        this.observers = [];
+        this.filters = [];
+        this.getFilters = () => {
+            return this.filters;
+        };
+    }
+    notifyObservers(event) {
+        this.observers.forEach(element => {
+            element.notified(this, event);
+        });
+    }
+    setList(list) {
+        this.filters = list;
+        this.notifyObservers("filtersSet");
+    }
+    changeFilter(name, val) {
+        var filt = this.filters.find((filter) => {
+            return filter.name == name;
+        });
+        filt.userPref = val;
+        this.notifyObservers("filterChanged");
+    }
+}
+exports.userFilters = new UserFilters();
+function shuffleArray(OGarray) {
+    var array = OGarray.slice();
     for (var i = array.length - 1; i > 0; i--) {
         var j = Math.floor(Math.random() * (i + 1));
         var temp = array[i];
         array[i] = array[j];
         array[j] = temp;
     }
+    return array;
 }
 exports.shuffleArray = shuffleArray;
 function unimplemented() {

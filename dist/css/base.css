@@ -7,6 +7,25 @@ a {
     text-shadow: 1px 0px 14px #b3e7fc; }
 
 /* Mixin */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg); }
+  100% {
+    transform: rotate(360deg); } }
+
+.loadingSpinner {
+  border: 16px solid #342d3a;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 1s linear infinite;
+  /* Safari */
+  animation: spin 1s linear infinite;
+  position: relative;
+  left: 47% !important;
+  top: 35%; }
+
 html,
 body, #main {
   height: 100%;
@@ -186,9 +205,13 @@ body, #main {
     height: 100%;
     width: 100%;
     overflow: hidden; }
+    #mainBody #movieGrid:focus {
+      outline: none; }
     #mainBody #movieGrid #moviePages {
       white-space: nowrap;
       position: relative; }
+    #mainBody #movieGrid #moviePages, #mainBody #movieGrid .moviePage {
+      height: 100%; }
     #mainBody #movieGrid .moviePage {
       display: inline-block;
       vertical-align: top;
@@ -208,6 +231,8 @@ body, #main {
     top: 0;
     position: absolute;
     width: 100%;
+    height: 100%; }
+  #mainBody #soloMovieOuter {
     height: 100%; }
   #mainBody #soloMovieDisplay {
     width: 80%;
@@ -236,29 +261,63 @@ body, #main {
       font-style: italic;
       font-weight: bold; }
     #mainBody #soloMovieDisplay .left {
-      width: 30%;
+      width: 25%;
       text-align: center; }
     #mainBody #soloMovieDisplay .right {
       width: 70%;
-      padding: 25px; }
+      padding: 0 10px; }
     #mainBody #soloMovieDisplay #soloClose {
       position: absolute;
-      top: 15px;
-      font-size: 42px;
+      top: 7px;
+      right: 7px;
+      font-size: 30px;
       color: white;
       z-index: 2;
-      cursor: pointer;
-      right: 15px; }
+      cursor: pointer; }
       #mainBody #soloMovieDisplay #soloClose:hover {
         text-shadow: 1px 0px 8px #b3e7fc; }
     #mainBody #soloMovieDisplay #soloTitle {
       text-align: center;
       font-weight: bold;
       font-size: 36px;
-      margin: 10px 0; }
-    #mainBody #soloMovieDisplay #runtime {
+      line-height: 36px;
+      margin: 5px 0 20px 0; }
+    #mainBody #soloMovieDisplay #runtime, #mainBody #soloMovieDisplay #budget {
       font-weight: bold;
-      margin-top: 20px; }
+      margin-top: 10px; }
+    #mainBody #soloMovieDisplay #maybeButton {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      position: absolute;
+      bottom: 12px;
+      font-weight: bold;
+      box-shadow: 1px 1px 16px #00000073;
+      border-radius: 9px;
+      background: #02c95c;
+      padding: 8px;
+      cursor: pointer;
+      right: 0; }
+      #mainBody #soloMovieDisplay #maybeButton:active {
+        background: #00b953; }
+    #mainBody #soloMovieDisplay #services {
+      position: absolute;
+      bottom: 0; }
+      #mainBody #soloMovieDisplay #services > div:first-child {
+        padding: 8px 0;
+        font-size: 18px;
+        font-weight: bold; }
+      #mainBody #soloMovieDisplay #services .service {
+        display: inline-block;
+        height: 50px;
+        margin: 0 5px;
+        cursor: pointer; }
+        #mainBody #soloMovieDisplay #services .service img {
+          height: 100%; }
+        #mainBody #soloMovieDisplay #services .service.unavailable {
+          opacity: .4;
+          cursor: inherit;
+          pointer-events: none; }
     #mainBody #soloMovieDisplay #overview {
       word-break: break-word;
       text-overflow: hidden; }
@@ -303,12 +362,15 @@ body, #main {
         vertical-align: top; }
       #mainBody .movieCell .addMovie:hover .addMovieHelper {
         opacity: 1;
+        display: block;
+        pointer-events: none;
         transition-delay: 300ms; }
       #mainBody .movieCell .addMovie .addMovieHelper {
         position: absolute;
         opacity: 0;
+        display: none;
         transform: translateX(-50%);
-        top: -1.8vw;
+        top: -26px;
         left: 50%;
         color: white;
         padding: 5px 8px;
@@ -376,14 +438,15 @@ body, #main {
   transition: all 200ms;
   color: white; }
   #maybeList:hover {
-    width: 40vw;
     height: 46vh; }
-    #maybeList:hover .movieTitle, #maybeList:hover .muvieChoose, #maybeList:hover .remove {
+    #maybeList:hover .movieTitle, #maybeList:hover .muvieChoose {
       opacity: 1 !important;
       margin-left: auto;
       margin-right: auto; }
     #maybeList:hover .maybeMovie {
       margin: 16px 0 !important; }
+      #maybeList:hover .maybeMovie:hover .remove {
+        opacity: 1 !important; }
     #maybeList:hover .maybeMovie img {
       height: 78% !important; }
   #maybeList #maybeContainer {
@@ -396,10 +459,21 @@ body, #main {
       margin: 6px 0;
       position: absolute;
       left: calc(var(--n) * 0.5%); }
+      #maybeList #maybeContainer .maybeMovie.choosing .chooseArrow {
+        opacity: 1 !important; }
+      #maybeList #maybeContainer .maybeMovie .chooseArrow {
+        opacity: 0;
+        position: absolute;
+        bottom: 3%;
+        font-size: 40px;
+        left: 50%;
+        transform: translateX(-50%); }
       #maybeList #maybeContainer .maybeMovie .movieContainer {
         height: 100%; }
       #maybeList #maybeContainer .maybeMovie img {
-        height: 80%; }
+        height: 80%;
+        cursor: pointer;
+        border-radius: 5px; }
       #maybeList #maybeContainer .maybeMovie .movieTitle {
         opacity: 0;
         margin-top: -4px;
@@ -413,9 +487,10 @@ body, #main {
         top: 4px;
         font-size: 22px;
         color: #fd3a3a;
-        right: 11%;
+        transition: all 200ms;
+        right: 50%;
         cursor: pointer;
-        transform: translateX(-14%);
+        transform: translateX(50%);
         text-shadow: 1px 1px 5px #000000f2; }
   #maybeList #maybeLabel {
     position: absolute;
@@ -430,6 +505,83 @@ body, #main {
     right: 14px;
     cursor: pointer;
     font-size: 20px; }
+    #maybeList .muvieChoose:hover #muvieChooseHelper {
+      opacity: 1 !important; }
+    #maybeList .muvieChoose #muvieChooseHelper {
+      position: absolute;
+      opacity: 0;
+      transform: translateX(-50%);
+      top: 1px;
+      right: 100%;
+      padding: 5px 8px;
+      border-radius: 10px;
+      font-weight: normal;
+      transition: opacity 200ms;
+      -webkit-text-stroke-width: 0;
+      background: #29242ddd;
+      font-size: 18px;
+      font-family: sans-serif; }
+
+#filterPage {
+  color: white;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  box-sizing: border-box;
+  padding: 5px 25px; }
+  #filterPage #filterBody {
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    max-width: 850px; }
+    #filterPage #filterBody > div {
+      width: 50%;
+      display: inline-block;
+      vertical-align: top;
+      padding: 10px 45px; }
+    #filterPage #filterBody .typeHeader {
+      font-weight: bold;
+      font-size: 18px; }
+    #filterPage #filterBody .filterType {
+      padding-bottom: 15px; }
+      #filterPage #filterBody .filterType input {
+        width: 80%; }
+        #filterPage #filterBody .filterType input:focus {
+          outline: none; }
+      #filterPage #filterBody .filterType .descriptor {
+        margin-top: 5px; }
+      #filterPage #filterBody .filterType .slider {
+        -webkit-appearance: none;
+        height: 8px;
+        margin: 15px 0px;
+        background: lightgray;
+        border-radius: 20px; }
+      #filterPage #filterBody .filterType .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 30px;
+        background: #02c95c;
+        cursor: pointer; }
+    #filterPage #filterBody .filterItem {
+      white-space: nowrap;
+      position: relative;
+      font-size: 18px;
+      padding: 3px 0; }
+      #filterPage #filterBody .filterItem .questionOptions {
+        right: 0px;
+        position: absolute; }
+        #filterPage #filterBody .filterItem .questionOptions span {
+          cursor: pointer; }
+        #filterPage #filterBody .filterItem .questionOptions .affirmative {
+          margin: 0 10px; }
+        #filterPage #filterBody .filterItem .questionOptions i {
+          margin: 0 6px; }
+      #filterPage #filterBody .filterItem * {
+        display: inline-block; }
+  #filterPage #filterTitle {
+    text-align: center;
+    font-weight: bold;
+    font-size: 30px; }
 
 .popup {
   position: fixed;

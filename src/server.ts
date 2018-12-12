@@ -1,5 +1,4 @@
 import { http, app } from "./app";
-import {con} from "./db";
 import axios from "axios";
 import * as prefFilters from "../pref-filters.json";
 
@@ -10,27 +9,26 @@ export const lang = "&language=en-US";
 let cache : {[key:string]:any} = {};
 let dummyData : {[key:number]:any} = {};
 
-function generateDummyData(movies:any[]) {
-  movies.forEach((movie:any) => {
-      var movieID = movie.id;
-      if (dummyData[movieID]) {
-      } else {
-          dummyData[movieID] = {};
+function generateDummyData(movie:any) {
+  var movieID = movie.id;
+  if (!dummyData[movieID]) {
+      dummyData[movieID] = {};
+    for (var key in prefFilters) {
+      if (prefFilters.hasOwnProperty(key)) {
+          var obj = prefFilters[key];
+          var d = Math.random();
+          if (!dummyData[movieID][obj["type"]]) {
+            dummyData[movieID][obj["type"]] = [];
+          }
+          if (d < .6) {
+            dummyData[movieID][obj["type"]].push(obj["name"]);
+          }
       }
-      for (var key in prefFilters) {
-        if (prefFilters.hasOwnProperty(key)) {
-            var obj = prefFilters[key];
-            var d = Math.random();
-            if (d < .4) {
-              if (!dummyData[movieID[obj["type"]]]) {
-                dummyData[movieID][obj["type"]] = [];
-              }
-              dummyData[movieID][obj["type"]].push(obj["name"]);
-            }
-        }
-      }
-      movie.myFilterData = dummyData[movieID];
-  });
+    }
+  } else {
+    console.log("already dummy");
+  }
+  movie.myFilterData = dummyData[movieID];
 }
 
 app.get('/genres', function(req, res) {
@@ -62,7 +60,9 @@ app.get("/getGenre", function(req, res) {
   else {
     axios.get(queryStr).then(
         (response) => {
-          generateDummyData(response.data.results);
+          response.data.results.forEach((movie:any)=>{
+            generateDummyData(movie);
+          });
           res.send(response.data);
           cache[queryStr] = response.data;
         }
@@ -87,6 +87,7 @@ app.get("/getMovie", function(req, res) {
   else {
     axios.get(queryStr).then(
       (response) => {
+        generateDummyData(response.data);
          res.send(response.data);
          cache[queryStr] = response.data;
       }

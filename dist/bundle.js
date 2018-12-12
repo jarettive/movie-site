@@ -29532,6 +29532,112 @@ return jQuery;
 
 /***/ }),
 
+/***/ "./src/components/FilterPage.tsx":
+/*!***************************************!*\
+  !*** ./src/components/FilterPage.tsx ***!
+  \***************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const React = __webpack_require__(/*! react */ "react");
+const Utilities_1 = __webpack_require__(/*! ./Utilities */ "./src/components/Utilities.ts");
+class FilterItem extends React.Component {
+    constructor() {
+        super(...arguments);
+        this.positive = () => {
+            Utilities_1.userFilters.changeFilter(this.props.filt.name, "yes");
+        };
+        this.negative = () => {
+            Utilities_1.userFilters.changeFilter(this.props.filt.name, "no");
+        };
+    }
+    render() {
+        var pref = this.props.filt.userPref || this.props.filt.default;
+        return (React.createElement("div", { className: "filterItem" },
+            this.props.filt.name,
+            React.createElement("div", { className: "questionOptions" },
+                React.createElement("span", { className: "affirmative", onClick: this.positive },
+                    (pref == "yes") ? React.createElement("i", { className: "far fa-check-square" }) : React.createElement("i", { className: "far fa-square" }),
+                    React.createElement("span", null, "Yes")),
+                React.createElement("span", { className: "negative", onClick: this.negative },
+                    (pref != "yes") ? React.createElement("i", { className: "far fa-check-square" }) : React.createElement("i", { className: "far fa-square" }),
+                    React.createElement("span", null, "No")))));
+    }
+}
+;
+class FilterPage extends React.Component {
+    constructor() {
+        super(...arguments);
+        this.state = { filters: [], runtime: 240, commonSense: 18, budget: 0, rottenTomatoes: 0 };
+    }
+    componentWillMount() {
+        this.observe(Utilities_1.userFilters);
+    }
+    observe(ob) {
+        ob.observers.push(this);
+    }
+    notified(observable, event) {
+        if (event == "filtersSet" || event == "filterChanged") {
+            this.setState({ filters: Utilities_1.userFilters.getFilters() });
+        }
+    }
+    render() {
+        var hours = Math.floor(this.state.runtime / 60);
+        return (React.createElement("div", { id: "filterPage", className: this.props.item.show ? "shown" : "hidden" },
+            React.createElement("div", { id: "filterTitle" }, "Filters"),
+            React.createElement("div", { id: "filterBody" },
+                React.createElement("div", null,
+                    React.createElement("div", { className: "filterType view_service" },
+                        React.createElement("div", { className: "typeHeader" }, "Service"),
+                        this.state.filters.map((filt, idx) => {
+                            if (filt.type == "view_service") {
+                                return React.createElement(FilterItem, { key: idx, filt: filt });
+                            }
+                        })),
+                    React.createElement("div", { className: "filterType content" },
+                        React.createElement("div", { className: "typeHeader" }, "Content"),
+                        this.state.filters.map((filt, idx) => {
+                            if (filt.type == "content") {
+                                return React.createElement(FilterItem, { key: idx, filt: filt });
+                            }
+                        }))),
+                React.createElement("div", null,
+                    React.createElement("div", { className: "filterType runtime" },
+                        React.createElement("div", { className: "typeHeader" }, "Runtime"),
+                        React.createElement("div", { className: "descriptor" },
+                            "Must have a runtime \u2264 ",
+                            hours + " hour" + ((hours > 1) ? "s " : " ") + (this.state.runtime % 60) + " minutes"),
+                        React.createElement("input", { className: "slider", value: this.state.runtime, onChange: (event) => { this.setState({ runtime: event.target.value }); }, type: "range", min: "60", max: "240" })),
+                    React.createElement("div", { className: "filterType commonSense" },
+                        React.createElement("div", { className: "typeHeader" }, "CommonSenseMedia"),
+                        React.createElement("div", { className: "descriptor" },
+                            "Must have a CommonSenseMedia rating \u2264 ",
+                            this.state.commonSense),
+                        React.createElement("input", { className: "slider", value: this.state.commonSense, onChange: (event) => { this.setState({ commonSense: event.target.value }); }, type: "range", min: "2", max: "18" })),
+                    React.createElement("div", { className: "filterType rottenTomatoes" },
+                        React.createElement("div", { className: "typeHeader" }, "RottenTomatoes"),
+                        React.createElement("div", { className: "descriptor" },
+                            "Must have a RottenTomatoes score \u2265 ",
+                            this.state.rottenTomatoes,
+                            "%"),
+                        React.createElement("input", { className: "slider", value: this.state.rottenTomatoes, onChange: (event) => { this.setState({ rottenTomatoes: event.target.value }); }, type: "range", min: "0", max: "100" })),
+                    React.createElement("div", { className: "filterType budget" },
+                        React.createElement("div", { className: "typeHeader" }, "Budget"),
+                        React.createElement("div", { className: "descriptor" },
+                            "Must have a budget \u2265 ",
+                            this.state.budget,
+                            " million"),
+                        React.createElement("input", { className: "slider", onChange: (event) => { this.setState({ budget: event.target.value }); }, value: this.state.budget, type: "range", min: "0", max: "300" }))))));
+    }
+}
+exports.FilterPage = FilterPage;
+
+
+/***/ }),
+
 /***/ "./src/components/MainPage.tsx":
 /*!*************************************!*\
   !*** ./src/components/MainPage.tsx ***!
@@ -29547,8 +29653,11 @@ const axios_1 = __webpack_require__(/*! axios */ "./node_modules/axios/index.js"
 const MovieGrid_1 = __webpack_require__(/*! ./MovieGrid */ "./src/components/MovieGrid.tsx");
 const TopHeader_1 = __webpack_require__(/*! ./TopHeader */ "./src/components/TopHeader.tsx");
 const SecondHeader_1 = __webpack_require__(/*! ./SecondHeader */ "./src/components/SecondHeader.tsx");
+const Utilities_1 = __webpack_require__(/*! ./Utilities */ "./src/components/Utilities.ts");
 const SoloDisplay_1 = __webpack_require__(/*! ./SoloDisplay */ "./src/components/SoloDisplay.tsx");
 const MaybeList_1 = __webpack_require__(/*! ./MaybeList */ "./src/components/MaybeList.tsx");
+const FilterPage_1 = __webpack_require__(/*! ./FilterPage */ "./src/components/FilterPage.tsx");
+const $ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
 exports.img300_450_url = "https://image.tmdb.org/t/p/w300_and_h450_bestv2";
 exports.img600_900_url = "https://image.tmdb.org/t/p/w600_and_h900_bestv2";
 exports.theMDBGenreMap = {};
@@ -29572,35 +29681,43 @@ class CurrMovieList {
         this.movies = [];
         this.currGenre = "";
         this.unFilteredCount = 0;
-        this.filters = [];
-        this.filterList = (filters) => {
-            var toFilter = [];
-            var toUnfilter = [];
-            var count = 0;
-            this.filters.push("zoo Weee");
-            this.movies.forEach((movie) => {
-                movie.filtered = (count % 2 == 0);
-                count++;
-            });
-            this.notifyObservers("filtersChanged");
+        this.filterList = (list) => {
+            var filters = Utilities_1.userFilters.getFilters();
+            if (filters.length > 0) {
+                for (var idx in list) {
+                    var movie = list[idx];
+                    movie.filtered = true;
+                    movie.myFilterData.view_service.forEach((service) => {
+                        filters.forEach((filter) => {
+                            var pref = filter.userPref || filter.default;
+                            if (filter.name == service && pref == "yes") {
+                                movie.filtered = false;
+                            }
+                        });
+                    });
+                }
+            }
         };
         this.setMovies = (movies) => {
             this.movies = movies;
+            this.filterList(this.movies);
             this.notifyObservers("listChanged");
         };
         this.getGenre = () => {
             return this.currGenre;
         };
         this.addMovies = (movs) => {
+            this.filterList(movs);
             this.movies = this.movies.concat(movs);
             this.notifyObservers("listChanged");
         };
         this.setGenre = (genre) => {
-            this.currGenre = genre;
-            this.notifyObservers("genreChanged");
+            if (this.currGenre != genre) {
+                this.currGenre = genre;
+                this.notifyObservers("genreChanged");
+            }
         };
         this.setCurrMovie = (movieID) => {
-            console.log(movieID);
             this.currMovie = this.movies.find((element) => {
                 return element.id == movieID;
             });
@@ -29616,6 +29733,13 @@ class CurrMovieList {
             return this.movies;
         };
     }
+    observe(ob) {
+        ob.observers.push(this);
+    }
+    notified(observable, event) {
+        this.filterList(this.movies);
+        this.notifyObservers("filtersChanged");
+    }
     getcurrMovie() {
         return this.currMovie;
     }
@@ -29627,6 +29751,7 @@ class CurrMovieList {
 }
 exports.CurrMovieList = CurrMovieList;
 exports.movieList = new CurrMovieList();
+exports.movieList.observe(Utilities_1.userFilters);
 var mainview;
 (function (mainview) {
     mainview[mainview["grid"] = 0] = "grid";
@@ -29662,14 +29787,17 @@ class MainBody extends React.Component {
         ob.observers.push(this);
     }
     notified(observable, event) {
-        var show = mainview.grid;
+        var show = this.state.showingChild;
         var filterChanged = false;
         if (event == "movieChanged") {
             show = mainview.solo;
         }
+        if (event == "genreChanged") {
+            show = mainview.grid;
+            $("#preferenceHeader").css({ visibility: "" });
+        }
         if (event == "listChanged") {
             this.movies = exports.movieList.getMovies();
-            show = mainview.grid;
         }
         if (event == "filtersChanged") {
             this.movies = exports.movieList.getMovies();
@@ -29685,13 +29813,8 @@ class MainBody extends React.Component {
         var result = (React.createElement("div", { id: "mainBody" },
             React.createElement(MovieGrid_1.MovieGrid, { item: { callBack: this.childCallback, show: this.state.showingChild == mainview.grid }, movies: this.movies, changedFilter: this.state.changedFilter, genre: exports.movieList.getGenre() }),
             React.createElement(SoloDisplay_1.SoloMovieDisplay, { item: { callBack: this.childCallback, show: this.state.showingChild == mainview.solo }, movie: exports.movieList.getcurrMovie() }),
-            React.createElement(FilterPage, { item: { callBack: this.childCallback, show: this.state.showingChild == mainview.filters } })));
+            React.createElement(FilterPage_1.FilterPage, { item: { callBack: this.childCallback, show: this.state.showingChild == mainview.filters } })));
         return result;
-    }
-}
-class FilterPage extends React.Component {
-    render() {
-        return (React.createElement("div", { id: "filterPage", onClick: () => { this.props.item.callBack(mainview.last); }, className: this.props.item.show ? "shown" : "hidden" }));
     }
 }
 class MainPage extends React.Component {
@@ -29739,13 +29862,17 @@ exports.SigninPopup = SigninPopup;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+const MainPage_1 = __webpack_require__(/*! ./MainPage */ "./src/components/MainPage.tsx");
 const React = __webpack_require__(/*! react */ "react");
 class MaybeList {
     constructor() {
         this.list = [];
         this.observers = [];
         this.add = (movie) => {
-            if (this.list.length < 8) {
+            var found = this.list.find((mov) => {
+                return mov.id == movie.id;
+            });
+            if (this.list.length < 8 && !found) {
                 this.list.push(movie);
                 this.notifyObservers("maybeListChanged");
             }
@@ -29770,12 +29897,25 @@ exports.maybeList = new MaybeList();
 class MaybeListComponent extends React.Component {
     constructor() {
         super(...arguments);
-        this.state = { hover: false, list: [] };
+        this.state = { hover: false, list: [], chosenIdx: -1, trueChosen: -1 };
+        this.ogListSize = 0;
         this.onMouseEnter = () => {
             this.setState({ hover: true });
+            this.ogListSize = this.state.list.length;
         };
         this.onMouseLeave = () => {
             this.setState({ hover: false });
+        };
+        this.muvieChoose = () => {
+            var timeToNextSwitch = 10;
+            var func = () => {
+                timeToNextSwitch += (timeToNextSwitch * (Math.random() / 3));
+                this.setState({ chosenIdx: (this.state.chosenIdx + 1) % this.state.list.length });
+                if (timeToNextSwitch < 800) {
+                    setTimeout(func, timeToNextSwitch);
+                }
+            };
+            func();
         };
     }
     observe(ob) {
@@ -29783,7 +29923,7 @@ class MaybeListComponent extends React.Component {
     }
     notified(observable, event) {
         if (event == "maybeListChanged") {
-            this.setState({ list: exports.maybeList.getList(), hover: false });
+            this.setState({ list: exports.maybeList.getList() });
         }
     }
     componentWillMount() {
@@ -29792,14 +29932,15 @@ class MaybeListComponent extends React.Component {
     render() {
         var listCount = this.state.list.length;
         var hover = (this.state.list.length == 0) ? false : this.state.hover;
-        var style = (hover) ? { width: (2 + listCount * 12) + "vw" } : (listCount < 1) ? { display: "none" } : {};
+        var style = (hover) ? { width: (2 + this.ogListSize * 12) + "vw" } : (listCount < 1) ? { display: "none" } : {};
         return (React.createElement("div", { id: "maybeList", style: style, onMouseEnter: this.onMouseEnter, onMouseLeave: this.onMouseLeave },
             React.createElement("div", { id: "maybeContainer" }, this.state.list.map((element, idx) => {
-                return React.createElement(MaybeMovieComp, { key: idx, idx: idx, numInList: listCount, movie: element });
+                return React.createElement(MaybeMovieComp, { key: idx, idx: idx, numInList: listCount, movie: element, choosing: idx == this.state.chosenIdx });
             })),
-            React.createElement("div", { id: "maybeBottom" },
-                React.createElement("div", { id: "maybeLabel" }, "Maybe List"),
-                listCount > 1 && React.createElement("i", { className: "muvieChoose fas fa-dice" }))));
+            React.createElement("div", { id: "maybeLabel" }, "Maybe List"),
+            listCount > 1 &&
+                React.createElement("i", { className: "muvieChoose fas fa-dice", onClick: this.muvieChoose },
+                    React.createElement("div", { id: "muvieChooseHelper" }, "Choose for me!"))));
     }
 }
 exports.MaybeListComponent = MaybeListComponent;
@@ -29807,16 +29948,20 @@ class MaybeMovieComp extends React.Component {
     constructor() {
         super(...arguments);
         this.viewMovie = () => {
+            MainPage_1.movieList.setCurrMovie(this.props.movie.id);
         };
-        this.remove = () => {
+        this.remove = (event) => {
+            event.stopPropagation();
             exports.maybeList.remove(this.props.movie.id);
         };
     }
     render() {
+        var imgPath = MainPage_1.img300_450_url + this.props.movie.poster_path;
         var style = { width: 100 / this.props.numInList + "%", left: (this.props.idx * 100 / this.props.numInList) + "%" };
-        return (React.createElement("div", { className: "maybeMovie", style: style, onClick: this.viewMovie },
-            React.createElement("img", { src: this.props.movie.img_path }),
+        return (React.createElement("div", { className: "maybeMovie" + ((this.props.choosing) ? " choosing" : ""), style: style },
+            React.createElement("img", { onClick: this.viewMovie, src: imgPath }),
             React.createElement("i", { onClick: this.remove, className: "remove fas fa-times-circle" }),
+            React.createElement("i", { className: "chooseArrow fas fa-caret-up" }),
             React.createElement("div", { className: "movieTitle" }, this.props.movie.title)));
     }
 }
@@ -29848,6 +29993,10 @@ class MoviePage extends React.Component {
             row1Movies = this.props.movies.slice(0, exports.moviesPerPage / 2);
             row2Movies = this.props.movies.slice(exports.moviesPerPage / 2, exports.moviesPerPage);
         }
+        if (this.props.movies.length < exports.moviesPerPage) {
+            return (React.createElement("div", { className: "moviePage" },
+                React.createElement("div", { className: "loadingSpinner" })));
+        }
         return (React.createElement("div", { className: "moviePage" },
             React.createElement(React.Fragment, null,
                 React.createElement(MovieRow, { rowMovies: row1Movies }),
@@ -29863,6 +30012,8 @@ class MovieGrid extends React.Component {
         this.unfilteredCnt = 0;
         this.retrievedPages = 1;
         this.componentWillMount = () => {
+            var yes = (event) => { this.keyPress(event); };
+            document.addEventListener("keydown", yes);
             this.turnPage(true);
             this.leftArrowRef = React.createRef();
         };
@@ -29872,7 +30023,7 @@ class MovieGrid extends React.Component {
             }
             this.setState({ pageNumber: this.state.pageNumber += (right ? 1 : -1) });
             this.addMoreMovies();
-            $("#moviePages").animate({ left: ((this.state.pageNumber - 1) * -100) + "%" }, 200);
+            $("#moviePages").animate({ left: ((this.state.pageNumber - 1) * -100) + "%" }, 180);
         };
         this.addMoreMovies = () => {
             if ((this.state.pageNumber + 1) * exports.moviesPerPage > this.unfilteredCnt) {
@@ -29902,22 +30053,25 @@ class MovieGrid extends React.Component {
             }
             if (props.genre != this.props.genre || props.changedFilter) {
                 this.setState({ pageNumber: 1 });
+                if (props.genre != this.props.genre) {
+                    $("#moviePages").animate({ left: "0%" }, 1);
+                }
                 this.addMoreMovies();
             }
         };
-    }
-    keyPress(event) {
-        if (event.keyCode == 37) {
-            this.turnPage();
-        }
-        else if (event.keyCode == 39) {
-            this.turnPage(true);
-        }
+        this.keyPress = (event) => {
+            if (event.keyCode == 37) {
+                this.turnPage();
+            }
+            else if (event.keyCode == 39) {
+                this.turnPage(true);
+            }
+        };
     }
     render() {
         var leftArrClass = "moveArrow goLeft fas fa-caret-left " + ((this.state.pageNumber == 1) ? "hidden" : "shown");
-        return (React.createElement("div", { id: "movieGrid", tabIndex: 0, className: this.props.item.show ? "shown" : "hidden", onKeyDown: (event) => { this.keyPress(event); } },
-            React.createElement("div", { id: "moviePages", style: { left: ((this.state.pageNumber - 1) * -100) + "%" } }, this.pages.map((page, idx) => {
+        return (React.createElement("div", { id: "movieGrid", tabIndex: 0, className: this.props.item.show ? "shown" : "hidden" },
+            React.createElement("div", { id: "moviePages" }, this.pages.map((page, idx) => {
                 return React.createElement(MoviePage, { key: idx, movies: page });
             })),
             React.createElement("i", { className: "moveArrow goRight fas fa-caret-right", onClick: () => { this.turnPage(true); } }),
@@ -29980,13 +30134,14 @@ const Main = __webpack_require__(/*! ./MainPage */ "./src/components/MainPage.ts
 const Util = __webpack_require__(/*! ./Utilities */ "./src/components/Utilities.ts");
 const $ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
 ;
-let filters = [];
 class PrefSignIn extends React.Component {
     constructor() {
         super(...arguments);
         this.state = { showPopup: false };
         this.showFilters = () => {
             Main.mainBus.notifyObservers("showFilters");
+            $("#preferenceHeader").css({ visibility: "hidden" });
+            document.getElementById("mainBody").scrollIntoView({ block: "start", behavior: "smooth" });
         };
     }
     render() {
@@ -30051,17 +30206,18 @@ class GenreTab extends React.Component {
             this.state.showPopupMenu && React.createElement(MoreMenu, null)));
     }
 }
+;
 class PreferenceBelt extends React.Component {
     constructor() {
         super(...arguments);
-        this.state = { fltrs: filters, leftMarg: 0 };
+        this.state = { filters: [], leftMarg: 0 };
         this.index = 0;
         this.changedBetween = false;
         this.nextQuestion = () => {
             var rect = $(".prefQuestion")[0].getBoundingClientRect();
             this.index += 1;
             var animationTime = 600;
-            if (this.index >= this.state.fltrs.length) {
+            if (this.index >= this.state.filters.length) {
                 this.index = 0;
                 animationTime = 1;
             }
@@ -30084,14 +30240,22 @@ class PreferenceBelt extends React.Component {
     }
     componentWillMount() {
         axios_1.default.get("\pref-filters.json").then((response) => {
-            filters = response.data;
-            Util.shuffleArray(filters);
-            this.setState({ fltrs: filters });
+            var filters = response.data;
+            Util.userFilters.setList(filters);
+            this.setState({ filters: Util.shuffleArray(filters) });
             this.convey();
         });
     }
+    observe(ob) {
+        ob.observers.push(this);
+    }
+    notified(observable, event) {
+        if (event == "filtersSet" || event == "filterChanged") {
+            this.setState({ filters: Util.userFilters.getFilters() });
+        }
+    }
     render() {
-        return (React.createElement("div", { id: "prefBelt", style: { marginTop: 0 } }, this.state.fltrs.map((element) => {
+        return (React.createElement("div", { id: "prefBelt", style: { marginTop: 0 } }, this.state.filters.map((element) => {
             return React.createElement(PreferenceQuestion, { key: element.name, questionAnswered: this.questionAnswered, filt: element });
         })));
     }
@@ -30099,13 +30263,10 @@ class PreferenceBelt extends React.Component {
 class PreferenceQuestion extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { positive: true };
-        this.positive = () => {
-            this.setState({ positive: true });
-            this.props.questionAnswered();
-        };
-        this.negative = () => {
-            this.setState({ positive: false });
+        this.state = { pref: this.props.filt.userPref || this.props.filt.default };
+        this.change = (val) => {
+            Util.userFilters.changeFilter(this.props.filt.name, val);
+            this.setState({ pref: val });
             this.props.questionAnswered();
         };
     }
@@ -30113,11 +30274,11 @@ class PreferenceQuestion extends React.Component {
         return (React.createElement("div", { className: "prefQuestion" },
             this.props.filt.question,
             React.createElement("div", { className: "questionOptions" },
-                React.createElement("span", { className: "affirmative", onClick: this.positive },
-                    this.state.positive ? React.createElement("i", { className: "far fa-check-square" }) : React.createElement("i", { className: "far fa-square" }),
+                React.createElement("span", { className: "affirmative", onClick: () => { this.change("yes"); } },
+                    (this.state.pref == "yes") ? React.createElement("i", { className: "far fa-check-square" }) : React.createElement("i", { className: "far fa-square" }),
                     React.createElement("span", null, "Yes")),
-                React.createElement("span", { className: "negative", onClick: this.negative },
-                    !this.state.positive ? React.createElement("i", { className: "far fa-check-square" }) : React.createElement("i", { className: "far fa-square" }),
+                React.createElement("span", { className: "negative", onClick: () => { this.change("no"); } },
+                    (this.state.pref != "yes") ? React.createElement("i", { className: "far fa-check-square" }) : React.createElement("i", { className: "far fa-square" }),
                     React.createElement("span", null, "No")))));
     }
 }
@@ -30138,6 +30299,7 @@ exports.PreferenceQuestion = PreferenceQuestion;
 Object.defineProperty(exports, "__esModule", { value: true });
 const MainPage_1 = __webpack_require__(/*! ./MainPage */ "./src/components/MainPage.tsx");
 const React = __webpack_require__(/*! react */ "react");
+const MaybeList_1 = __webpack_require__(/*! ./MaybeList */ "./src/components/MaybeList.tsx");
 class SoloMovieDisplay extends React.Component {
     constructor(props) {
         super(props);
@@ -30151,22 +30313,37 @@ class SoloMovieDisplay extends React.Component {
     render() {
         var time = (this.props.movie) ? this.props.movie.runtime : 0;
         var hours = Math.floor(time / 60);
-        return (React.createElement("div", { id: "soloMovieDisplay", className: this.props.item.show ? "shown" : "hidden", ref: this.boxRef },
-            React.createElement("i", { id: "soloClose", className: "far fa-times-circle", onClick: () => { this.props.item.callBack(MainPage_1.mainview.last); } }),
-            React.createElement("div", { className: "left" },
-                React.createElement("img", { src: this.props.movie && MainPage_1.img600_900_url + this.props.movie.poster_path }),
-                this.props.movie && this.props.movie.tagline
-                    && React.createElement("div", { id: "tagLine" },
-                        "\"",
-                        this.props.movie.tagline,
-                        "\"")),
-            React.createElement("div", { className: "right" }, this.props.movie &&
-                React.createElement(React.Fragment, null,
-                    React.createElement("div", { id: "soloTitle" }, this.props.movie.title),
-                    React.createElement("div", { id: "overview" }, this.props.movie.overview),
-                    React.createElement("div", { id: "runtime" },
-                        "Runtime: ",
-                        hours + " hour" + ((hours > 1) ? "s " : " ") + time % 60 + " minutes")))));
+        var viewServices = (this.props.movie && this.props.movie.myFilterData.view_service) ? this.props.movie.myFilterData.view_service : [];
+        var services = ["Netflix", "Hulu", "Redbox", "Amazon", "Starz", "HBO"];
+        return (React.createElement("div", { id: "soloMovieOuter", onClick: () => { this.props.item.callBack(MainPage_1.mainview.last); } },
+            React.createElement("div", { id: "soloMovieDisplay", onClick: (event) => { event.stopPropagation(); }, className: this.props.item.show ? "shown" : "hidden", ref: this.boxRef },
+                React.createElement("i", { id: "soloClose", className: "far fa-times-circle", onClick: () => { this.props.item.callBack(MainPage_1.mainview.last); } }),
+                React.createElement("div", { className: "left" },
+                    React.createElement("img", { src: this.props.movie && MainPage_1.img600_900_url + this.props.movie.poster_path }),
+                    this.props.movie && this.props.movie.tagline
+                        && React.createElement("div", { id: "tagLine" },
+                            "\"",
+                            this.props.movie.tagline,
+                            "\"")),
+                React.createElement("div", { className: "right" }, this.props.movie &&
+                    React.createElement(React.Fragment, null,
+                        React.createElement("div", { id: "soloTitle" }, this.props.movie.title),
+                        React.createElement("div", { id: "overview" }, this.props.movie.overview),
+                        React.createElement("div", { id: "runtime" },
+                            "Runtime: ",
+                            (hours > 0) && hours + " hour" + ((hours > 1) ? "s " : " ") + time % 60 + " minutes"),
+                        React.createElement("div", { id: "budget" },
+                            "Budget: $",
+                            this.props.movie.budget && this.props.movie.budget.toLocaleString()),
+                        React.createElement("div", { id: "services" },
+                            React.createElement("div", null, "Available on:"),
+                            services.map((service) => {
+                                var searchTerm = (service == "Amazon") ? "Amazon Video" : service;
+                                var searchTerm = (service == "HBO") ? "HBO Now" : service;
+                                return (React.createElement("div", { className: "service" + ((viewServices.indexOf(searchTerm) != -1) ? "" : " unavailable") },
+                                    React.createElement("img", { src: "images/" + service + ".jpg" })));
+                            })),
+                        React.createElement("div", { id: "maybeButton", onClick: () => { MaybeList_1.maybeList.add(this.props.movie); } }, "Add to Maybe List"))))));
     }
 }
 exports.SoloMovieDisplay = SoloMovieDisplay;
@@ -30206,7 +30383,7 @@ class TopHeader extends React.Component {
     render() {
         return (React.createElement("div", { id: "topHeader" },
             React.createElement("div", { className: "vertCentered" },
-                React.createElement("div", { id: "titleText", onClick: () => { MainPage_1.movieList.filterList(["Hulu"]); } }, "MUVIE"),
+                React.createElement("div", { id: "titleText" }, "MUVIE"),
                 React.createElement("div", { id: "logoText" }, "find movies for you")),
             React.createElement("div", { className: "rightCentered" },
                 React.createElement("div", { id: "searchBar" },
@@ -30215,7 +30392,7 @@ class TopHeader extends React.Component {
                     React.createElement("input", { type: "text", placeholder: this.state.showText == true ? "Search movies" : "", onKeyDown: this.search, onFocus: (inp) => { this.setState({ showText: false }); }, onBlur: (inp) => { this.setState({ showText: true }); } }),
                     !this.state.showText && this.state.potentials.length > 0 &&
                         React.createElement("div", { id: "searchResults" }, this.state.potentials.map((element) => {
-                            return React.createElement("div", { className: "searchResult", onMouseDown: () => { console.dir(element); MainPage_1.movieList.setCurrMovie(element.id); } }, element.title + " (" + element.release_date.substring(0, 4) + ")");
+                            return React.createElement("div", { className: "searchResult", onMouseDown: () => { MainPage_1.movieList.setCurrMovie(element.id); } }, element.title + " (" + element.release_date.substring(0, 4) + ")");
                         }))))));
     }
 }
@@ -30236,13 +30413,41 @@ exports.TopHeader = TopHeader;
 Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
 const Main = __webpack_require__(/*! ./MainPage */ "./src/components/MainPage.tsx");
-function shuffleArray(array) {
+class UserFilters {
+    constructor() {
+        this.observers = [];
+        this.filters = [];
+        this.getFilters = () => {
+            return this.filters;
+        };
+    }
+    notifyObservers(event) {
+        this.observers.forEach(element => {
+            element.notified(this, event);
+        });
+    }
+    setList(list) {
+        this.filters = list;
+        this.notifyObservers("filtersSet");
+    }
+    changeFilter(name, val) {
+        var filt = this.filters.find((filter) => {
+            return filter.name == name;
+        });
+        filt.userPref = val;
+        this.notifyObservers("filterChanged");
+    }
+}
+exports.userFilters = new UserFilters();
+function shuffleArray(OGarray) {
+    var array = OGarray.slice();
     for (var i = array.length - 1; i > 0; i--) {
         var j = Math.floor(Math.random() * (i + 1));
         var temp = array[i];
         array[i] = array[j];
         array[j] = temp;
     }
+    return array;
 }
 exports.shuffleArray = shuffleArray;
 function unimplemented() {

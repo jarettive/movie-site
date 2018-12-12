@@ -6,13 +6,14 @@ const Main = require("./MainPage");
 const Util = require("./Utilities");
 const $ = require("jquery");
 ;
-let filters = [];
 class PrefSignIn extends React.Component {
     constructor() {
         super(...arguments);
         this.state = { showPopup: false };
         this.showFilters = () => {
             Main.mainBus.notifyObservers("showFilters");
+            $("#preferenceHeader").css({ visibility: "hidden" });
+            document.getElementById("mainBody").scrollIntoView({ block: "start", behavior: "smooth" });
         };
     }
     render() {
@@ -77,17 +78,18 @@ class GenreTab extends React.Component {
             this.state.showPopupMenu && React.createElement(MoreMenu, null)));
     }
 }
+;
 class PreferenceBelt extends React.Component {
     constructor() {
         super(...arguments);
-        this.state = { fltrs: filters, leftMarg: 0 };
+        this.state = { filters: [], leftMarg: 0 };
         this.index = 0;
         this.changedBetween = false;
         this.nextQuestion = () => {
             var rect = $(".prefQuestion")[0].getBoundingClientRect();
             this.index += 1;
             var animationTime = 600;
-            if (this.index >= this.state.fltrs.length) {
+            if (this.index >= this.state.filters.length) {
                 this.index = 0;
                 animationTime = 1;
             }
@@ -110,14 +112,22 @@ class PreferenceBelt extends React.Component {
     }
     componentWillMount() {
         axios_1.default.get("\pref-filters.json").then((response) => {
-            filters = response.data;
-            Util.shuffleArray(filters);
-            this.setState({ fltrs: filters });
+            var filters = response.data;
+            Util.userFilters.setList(filters);
+            this.setState({ filters: Util.shuffleArray(filters) });
             this.convey();
         });
     }
+    observe(ob) {
+        ob.observers.push(this);
+    }
+    notified(observable, event) {
+        if (event == "filtersSet" || event == "filterChanged") {
+            this.setState({ filters: Util.userFilters.getFilters() });
+        }
+    }
     render() {
-        return (React.createElement("div", { id: "prefBelt", style: { marginTop: 0 } }, this.state.fltrs.map((element) => {
+        return (React.createElement("div", { id: "prefBelt", style: { marginTop: 0 } }, this.state.filters.map((element) => {
             return React.createElement(PreferenceQuestion, { key: element.name, questionAnswered: this.questionAnswered, filt: element });
         })));
     }
@@ -125,13 +135,10 @@ class PreferenceBelt extends React.Component {
 class PreferenceQuestion extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { positive: true };
-        this.positive = () => {
-            this.setState({ positive: true });
-            this.props.questionAnswered();
-        };
-        this.negative = () => {
-            this.setState({ positive: false });
+        this.state = { pref: this.props.filt.userPref || this.props.filt.default };
+        this.change = (val) => {
+            Util.userFilters.changeFilter(this.props.filt.name, val);
+            this.setState({ pref: val });
             this.props.questionAnswered();
         };
     }
@@ -139,11 +146,11 @@ class PreferenceQuestion extends React.Component {
         return (React.createElement("div", { className: "prefQuestion" },
             this.props.filt.question,
             React.createElement("div", { className: "questionOptions" },
-                React.createElement("span", { className: "affirmative", onClick: this.positive },
-                    this.state.positive ? React.createElement("i", { className: "far fa-check-square" }) : React.createElement("i", { className: "far fa-square" }),
+                React.createElement("span", { className: "affirmative", onClick: () => { this.change("yes"); } },
+                    (this.state.pref == "yes") ? React.createElement("i", { className: "far fa-check-square" }) : React.createElement("i", { className: "far fa-square" }),
                     React.createElement("span", null, "Yes")),
-                React.createElement("span", { className: "negative", onClick: this.negative },
-                    !this.state.positive ? React.createElement("i", { className: "far fa-check-square" }) : React.createElement("i", { className: "far fa-square" }),
+                React.createElement("span", { className: "negative", onClick: () => { this.change("no"); } },
+                    (this.state.pref != "yes") ? React.createElement("i", { className: "far fa-check-square" }) : React.createElement("i", { className: "far fa-square" }),
                     React.createElement("span", null, "No")))));
     }
 }
