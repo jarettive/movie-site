@@ -569,7 +569,6 @@ body, #main {
     transition: all 200ms;
     color: white;
     &:hover {
-        height:46vh;
         .movieTitle, .muvieChoose {
             opacity: 1 !important;
             margin-left: auto;
@@ -602,10 +601,21 @@ body, #main {
                     opacity: 1 !important;
                 }
             }
-            .chooseArrow {
+            &.trueChosen {
+                .crown {
+                    opacity: 1 !important;
+                }
+            }
+            .crown {
+                color:gold;
+                bottom: 20%;
+            }
+            .chooseArrow{
+                bottom: 3%;
+            }
+            .chooseArrow, .crown {
                 opacity: 0;
                 position: absolute;
-                bottom: 3%;
                 font-size: 40px;
                 left: 50%;
                 transform: translateX(-50%);
@@ -662,7 +672,6 @@ body, #main {
         #muvieChooseHelper {
             position: absolute;
             opacity: 0;
-            transform: translateX(-50%);
             top: 1px;
             right: 100%;
             padding: 5px 8px;

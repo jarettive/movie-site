@@ -42,18 +42,27 @@ class MaybeListComponent extends React.Component {
             this.ogListSize = this.state.list.length;
         };
         this.onMouseLeave = () => {
-            this.setState({ hover: false });
+            if (this.state.chosenIdx == -1) {
+                this.setState({ hover: false, trueChosen: -1 });
+            }
         };
         this.muvieChoose = () => {
-            var timeToNextSwitch = 10;
             var func = () => {
                 timeToNextSwitch += (timeToNextSwitch * (Math.random() / 3));
                 this.setState({ chosenIdx: (this.state.chosenIdx + 1) % this.state.list.length });
                 if (timeToNextSwitch < 800) {
                     setTimeout(func, timeToNextSwitch);
                 }
+                else {
+                    this.setState({ trueChosen: this.state.chosenIdx, chosenIdx: -1 });
+                }
             };
-            func();
+            if (this.state.chosenIdx == -1) {
+                var timeToNextSwitch = 10;
+                var start = Math.floor(Math.random() * this.state.list.length);
+                this.setState({ chosenIdx: start });
+                func();
+            }
         };
     }
     observe(ob) {
@@ -70,10 +79,10 @@ class MaybeListComponent extends React.Component {
     render() {
         var listCount = this.state.list.length;
         var hover = (this.state.list.length == 0) ? false : this.state.hover;
-        var style = (hover) ? { width: (2 + this.ogListSize * 12) + "vw" } : (listCount < 1) ? { display: "none" } : {};
+        var style = (hover) ? { width: (2 + this.ogListSize * 12) + "vw", height: "46vh" } : (listCount < 1) ? { display: "none" } : {};
         return (React.createElement("div", { id: "maybeList", style: style, onMouseEnter: this.onMouseEnter, onMouseLeave: this.onMouseLeave },
             React.createElement("div", { id: "maybeContainer" }, this.state.list.map((element, idx) => {
-                return React.createElement(MaybeMovieComp, { key: idx, idx: idx, numInList: listCount, movie: element, choosing: idx == this.state.chosenIdx });
+                return React.createElement(MaybeMovieComp, { key: idx, idx: idx, numInList: listCount, movie: element, choosing: idx == this.state.chosenIdx, trueChosen: idx == this.state.trueChosen });
             })),
             React.createElement("div", { id: "maybeLabel" }, "Maybe List"),
             listCount > 1 &&
@@ -95,11 +104,13 @@ class MaybeMovieComp extends React.Component {
     }
     render() {
         var imgPath = MainPage_1.img300_450_url + this.props.movie.poster_path;
+        var classes = "maybeMovie" + ((this.props.choosing) ? " choosing" : "") + ((this.props.trueChosen) ? " trueChosen" : "");
         var style = { width: 100 / this.props.numInList + "%", left: (this.props.idx * 100 / this.props.numInList) + "%" };
-        return (React.createElement("div", { className: "maybeMovie" + ((this.props.choosing) ? " choosing" : ""), style: style },
+        return (React.createElement("div", { className: classes, style: style },
             React.createElement("img", { onClick: this.viewMovie, src: imgPath }),
             React.createElement("i", { onClick: this.remove, className: "remove fas fa-times-circle" }),
             React.createElement("i", { className: "chooseArrow fas fa-caret-up" }),
+            React.createElement("i", { className: "crown fas fa-crown" }),
             React.createElement("div", { className: "movieTitle" }, this.props.movie.title)));
     }
 }
