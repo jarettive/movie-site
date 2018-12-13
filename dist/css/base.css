@@ -267,7 +267,8 @@ body, #main {
       text-align: center; }
     #mainBody #soloMovieDisplay .right {
       width: 70%;
-      padding: 0 10px; }
+      padding: 0 10px;
+      font-size: 18px; }
     #mainBody #soloMovieDisplay #soloClose {
       position: absolute;
       top: 7px;
