@@ -126,7 +126,9 @@ body, #main {
       width: 160px;
       text-align: center; }
       #secondHeader #preferenceHeader #preferenceSignIn u {
-        cursor: pointer; }
+        cursor: pointer;
+        font-size: 16px;
+        line-height: 20px; }
     #secondHeader #preferenceHeader #prefBelt {
       white-space: nowrap;
       margin-left: auto;
